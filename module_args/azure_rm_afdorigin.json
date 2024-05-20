@@ -1,0 +1,15 @@
+{
+    "ANSIBLE_MODULE_ARGS": {
+      "name": "origin2",
+      "origin_group_name": "origingroup1",
+      "host_name": "aaa-id-for-testing-aaa.azurewebsites.net",
+      "origin_host_header": "aaa-id-for-testing-aaa.azurewebsites.net",
+      "http_port": 80,
+      "https_port": 443,
+      "profile_name": "testfdjpt",
+      "resource_group": "aaa-id-for-testing-aaa-rg",
+      "state": "absent",
+      "priority": 1,
+      "weight": 20
+    }
+}

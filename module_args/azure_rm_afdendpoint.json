@@ -1,0 +1,10 @@
+{
+    "ANSIBLE_MODULE_ARGS": {
+      "name": "endpoint1",
+      "profile_name": "testfdjpt",
+      "resource_group": "aaa-id-for-testing-aaa-rg",
+      "location": "eastus",
+      "state": "present",
+      "origin_response_timeout_seconds": 45
+    }
+}
