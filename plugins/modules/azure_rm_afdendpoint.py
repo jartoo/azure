@@ -3,6 +3,8 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 #
 # Python SDK Reference: https://learn.microsoft.com/en-us/python/api/azure-mgmt-cdn/azure.mgmt.cdn.operations.afdendpointsoperations?view=azure-python
+# TODO: Add host_name to the returned results
+#
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
@@ -10,8 +12,11 @@ __metaclass__ = type
 DOCUMENTATION = '''
 ---
 module: azure_rm_afdendpoint
-version_added: "2.3.0"
+
+version_added: ""
+
 short_description: Manage an Azure Front Door Endpoint to be used with Standard or Premium Frontdoor
+
 description:
     - Create, update and delete an Azure Front Door (AFD) Endpoint to be used by a Front Door Service Profile created using azure_rm_cdnprofile.  This differs from the Front Door classic service and only is intended to be used by the Standard or Premium service offering.
 
@@ -71,16 +76,23 @@ EXAMPLES = '''
     state: absent
 '''
 RETURN = '''
-state:
-    description: Current state of the AFD Endpoint.
-    returned: always
-    type: str
 id:
     description:
         - ID of the AFD Endpoint.
     returned: always
     type: str
     sample: "id: /subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourcegroups/myResourceGroup/providers/Microsoft.Cdn/profiles/myProfile/endpoints/myEndpoint"
+host_name:
+    description:
+        - Host name of the AFD Endpoint.
+    returned: always
+    type: str
+    sample: "myendpoint.azurefd.net"
+state:
+    description: Current state of the AFD Endpoint.
+    returned: always
+    type: str
+
 '''
 from ansible_collections.azure.azcollection.plugins.module_utils.azure_rm_common import AzureRMModuleBase
 
@@ -185,6 +197,7 @@ class AzureRMEndpoint(AzureRMModuleBase):
                 if not self.check_mode:
                     new_response = self.create_endpoint()
                     self.results['id'] = new_response['id']
+                    self.results['host_name'] = new_response['host_name']
                     self.log("AFD Endpoint creation done")
 
                 self.results['changed'] = True
@@ -193,6 +206,7 @@ class AzureRMEndpoint(AzureRMModuleBase):
             else:
                 self.log('Results : {0}'.format(response))
                 self.results['id'] = response['id']                
+                self.results['host_name'] = response['host_name']
                 
                 update_tags, response['tags'] = self.update_tags(response['tags'])
 
@@ -210,8 +224,8 @@ class AzureRMEndpoint(AzureRMModuleBase):
                         self.results['changed'] = True
 
                         if not self.check_mode:
-                            new_response = self.update_endpoint()
-                            self.results['id'] = new_response['id']
+                            result = self.update_endpoint()
+                            self.results['host_name'] = result['host_name']
                             self.log("AFD Endpoint update done")    
 
         elif self.state == 'absent':
@@ -224,6 +238,7 @@ class AzureRMEndpoint(AzureRMModuleBase):
                 if not self.check_mode:
                     self.delete_endpoint()
                     self.results['id'] = response['id']
+                    self.log("Azure AFD Endpoint deleted")
 
         return self.results
 
