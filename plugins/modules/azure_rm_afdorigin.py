@@ -186,7 +186,7 @@ class AzureRMOrigin(AzureRMModuleBase):
                 type='str',
                 required=False
             ),
-            private_link_location=dict(
+            private_link_location=dict( # TODO: Test the private link setup and connection
                 type='str',
                 required=False
             ),

@@ -1,0 +1,12 @@
+{
+    "ANSIBLE_MODULE_ARGS": {
+      "resource_group": "aaa-kepler-test-rg",
+      "location": "Global",
+      "name": "kepler-tamr-dev-frontdoor-jpt",
+      "sku": "Premium_AzureFrontDoor",
+      "subscription_id": "f5c96a5a-b3f6-470f-8a0c-817cf3833928",
+      "tags": {
+        "Team": "Artemis"
+      }
+    }
+}

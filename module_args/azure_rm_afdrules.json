@@ -1,0 +1,34 @@
+{
+  "ANSIBLE_MODULE_ARGS": {
+    "name": "NoCacheAuthRequests",
+    "rule_set_name": "Security",
+    "profile_name": "allstars-dev-fd-jpt",
+    "resource_group": "aaa-id-for-testing-aaa-rg",
+    "subscription_id": "f5c96a5a-b3f6-470f-8a0c-817cf3833928",
+    "match_processing_behavior": "Continue",
+    "order": 2,
+    "actions": [
+      {
+        "name": "RouteConfigurationOverride",
+        "parameters": {
+          "type_name": "DeliveryRuleRouteConfigurationOverrideActionParameters"
+        }
+      }
+    ],
+    "conditions": [
+      {
+        "name": "UrlPath",
+        "parameters": {
+          "match_values": [
+            ".auth"
+          ],
+          "negate_condition": false,
+          "operator": "BeginsWith",
+          "transforms": [],
+          "type_name": "DeliveryRuleUrlPathMatchConditionParameters"
+        }
+      }
+    ],
+    "state": "present"
+  }
+}

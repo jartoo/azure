@@ -1,0 +1,8 @@
+{
+    "ANSIBLE_MODULE_ARGS": {
+      "name": "jptrules",
+      "resource_group": "aaa-id-for-testing-aaa-rg",
+      "profile_name": "testfdjpt",
+      "state": "present"
+    }
+}

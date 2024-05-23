@@ -1,0 +1,26 @@
+{
+    "ANSIBLE_MODULE_ARGS": {
+      "name": "wafpolicy1",
+      "resource_group": "aaa-id-for-testing-aaa-rg",
+      "state": "absent",
+      "location": "Enabled",
+      "sku": "Premium_AzureFrontDoor",
+      "tags": [{"tagname":"tagvalue"}],
+      "rules": [
+        {
+          "name":"rule1",
+          "priority": 1,
+          "match_conditions": [
+            {
+              "match_variable": "REQUEST_HEADER",
+              "operator": "BEGINS_WITH",
+              "match_value": ["xml","bob"],
+              "selector": "",
+              "negate_condition": false,
+              "transforms": ["URL_ENCODE"]
+            }
+          ]
+        }
+      ]
+    }
+}

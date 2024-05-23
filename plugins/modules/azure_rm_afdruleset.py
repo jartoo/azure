@@ -9,9 +9,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_afdruleset
 version_added: "0.1.0"
-short_description: Manage an Azure Front Door Origin
+short_description: Manage an Azure Front Door Rule Set
 description:
-    - Create, update and delete an Azure Front Door Origin to be used by a Front Door Service Profile created using azure_rm_cdnprofile.
+    - Create, update and delete an Azure Front Door Rule Set to be used by a Front Door Service Profile created using azure_rm_cdnprofile.
 
 options:
     resource_group:
@@ -21,7 +21,7 @@ options:
         type: str
     name:
         description:
-            - Name of the Front Door Origin.
+            - Name of the Front Door Rule Set.
         required: true
         type: str
     profile_name:
@@ -128,7 +128,7 @@ type:
 from ansible_collections.azure.azcollection.plugins.module_utils.azure_rm_common import AzureRMModuleBase
 
 try:
-    from azure.mgmt.cdn.models import AFDOrigin, AFDOriginUpdateParameters 
+    from azure.mgmt.cdn.models import RuleSet
     from azure.mgmt.cdn import CdnManagementClient
 except ImportError as ec:
     # This is handled in azure_rm_common
@@ -144,7 +144,7 @@ def ruleset_to_dict(ruleset):
     )
 
 
-class AzureRMOrigin(AzureRMModuleBase):
+class AzureRMRuleSet(AzureRMModuleBase):
 
     def __init__(self):
         self.module_arg_spec = dict(
@@ -181,7 +181,7 @@ class AzureRMOrigin(AzureRMModuleBase):
 
         self.results = dict(changed=False)
 
-        super(AzureRMOrigin, self).__init__(derived_arg_spec=self.module_arg_spec,
+        super(AzureRMRuleSet, self).__init__(derived_arg_spec=self.module_arg_spec,
                                                 supports_check_mode=True,
                                                 supports_tags=False,
                                                 required_if=required_if)
@@ -199,7 +199,7 @@ class AzureRMOrigin(AzureRMModuleBase):
         if self.state == 'present':
 
             if not response:
-                self.log("Need to create the Origin")
+                self.log("Need to create the Rule Set")
 
                 if not self.check_mode:
                     new_response = self.create_ruleset()
@@ -212,9 +212,9 @@ class AzureRMOrigin(AzureRMModuleBase):
 
         elif self.state == 'absent':
             if not response:
-                self.fail("Origin {0} does not exist.".format(self.name))
+                self.fail("Rule Set {0} does not exist.".format(self.name))
             else:
-                self.log("Need to delete the Origin")
+                self.log("Need to delete the Rule Set")
                 self.results['changed'] = True
 
                 if not self.check_mode:
@@ -225,11 +225,11 @@ class AzureRMOrigin(AzureRMModuleBase):
 
     def create_ruleset(self):
         '''
-        Creates a Azure Origin.
+        Creates a Azure Rule Set.
 
-        :return: deserialized Azure Origin instance state dictionary
+        :return: deserialized Azure Rule Set instance state dictionary
         '''
-        self.log("Creating the Azure Origin instance {0}".format(self.name))
+        self.log("Creating the Azure Rule Set instance {0}".format(self.name))
 
         try:
             poller = self.ruleset_client.rule_sets.begin_create(
@@ -240,33 +240,33 @@ class AzureRMOrigin(AzureRMModuleBase):
             response = self.get_poller_result(poller)
             return ruleset_to_dict(response)
         except Exception as exc:
-            self.log('Error attempting to create Azure Origin instance.')
-            self.fail("Error Creating Azure Origin instance: {0}".format(exc.message))
+            self.log('Error attempting to create Azure Rule Set instance.')
+            self.fail("Error Creating Azure Rule Set instance: {0}".format(exc.message))
 
     def delete_ruleset(self):
         '''
-        Deletes the specified Azure Origin in the specified subscription and resource group.
+        Deletes the specified Azure Rule Set in the specified subscription and resource group.
 
         :return: True
         '''
-        self.log("Deleting the Origin {0}".format(self.name))
+        self.log("Deleting the Rule Set {0}".format(self.name))
         try:
             poller = self.ruleset_client.rule_sets.begin_delete(resource_group_name=self.resource_group, profile_name=self.profile_name, rule_set_name=self.name)
             self.get_poller_result(poller)
             return True
         except Exception as e:
-            self.log('Error attempting to delete the Origin.')
-            self.fail("Error deleting the Origin: {0}".format(e.message))
+            self.log('Error attempting to delete the Rule Set.')
+            self.fail("Error deleting the Rule Set: {0}".format(e.message))
             return False
 
     def get_ruleset(self):
         '''
-        Gets the properties of the specified Origin.
+        Gets the properties of the specified Rule Set.
 
-        :return: deserialized Origin state dictionary
+        :return: deserialized Rule Set state dictionary
         '''
         self.log(
-            "Checking if the Origin {0} is present".format(self.name))
+            "Checking if the Rule Set {0} is present".format(self.name))
         try:
             response = self.ruleset_client.rule_sets.get(
                 resource_group_name=self.resource_group,
@@ -274,10 +274,10 @@ class AzureRMOrigin(AzureRMModuleBase):
                 rule_set_name=self.name,
             )
             self.log("Response : {0}".format(response))
-            self.log("Origin : {0} found".format(response.name))
+            self.log("Rule Set : {0} found".format(response.name))
             return ruleset_to_dict(response)
         except Exception as err:
-            self.log('Did not find the Origin.' + err.args[0])
+            self.log('Did not find the Rule Set.' + err.args[0])
             return False
 
     def get_ruleset_client(self):
@@ -290,10 +290,10 @@ class AzureRMOrigin(AzureRMModuleBase):
 
 def main():
     """Main execution"""
-    AzureRMOrigin()
+    AzureRMRuleSet()
     # x = CdnManagementClient()
     # x.rule_sets.begin_create()
-    # y = AFDOrigin()
+    # y = AFDRuleSet()
 
 if __name__ == '__main__':
     main()
