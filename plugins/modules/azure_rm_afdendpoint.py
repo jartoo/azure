@@ -1,8 +1,8 @@
 #!/usr/bin/python
 #
-# Copyright (c) 2018 Hai Cao, <t-haicao@microsoft.com>, Yunge Zhu <yungez@microsoft.com>
-#
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+#
+# Python SDK Reference: https://learn.microsoft.com/en-us/python/api/azure-mgmt-cdn/azure.mgmt.cdn.operations.afdendpointsoperations?view=azure-python
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
@@ -10,25 +10,20 @@ __metaclass__ = type
 DOCUMENTATION = '''
 ---
 module: azure_rm_afdendpoint
-version_added: "0.1.0"
-short_description: Manage an Azure Front Door Endpoint
+version_added: "2.3.0"
+short_description: Manage an Azure Front Door Endpoint to be used with Standard or Premium Frontdoor
 description:
-    - Create, update and delete an Azure Front Door Endpoint to be used by a Front Door Service Profile created using azure_rm_cdnprofile.
+    - Create, update and delete an Azure Front Door (AFD) Endpoint to be used by a Front Door Service Profile created using azure_rm_cdnprofile.  This differs from the Front Door classic service and only is intended to be used by the Standard or Premium service offering.
 
 options:
     resource_group:
         description:
-            - Name of a resource group where the CDN front door endpoint exists or will be created.
+            - Name of a resource group where the Azure Front Door Endpoint exists or will be created.
         required: true
         type: str
     name:
         description:
-            - Name of the Front Door Endpoint.
-        required: true
-        type: str
-    profile_name:
-        description:
-            - Name of the Front Door Profile.
+            - Name of the AFD Endpoint.
         required: true
         type: str
     location:
@@ -36,9 +31,14 @@ options:
             - Valid Azure location. Defaults to location of the resource group.
         required: true
         type: str
+    profile_name:
+        description:
+            - Name of the AFD Profile where the Endpoint will be attached to.
+        required: true
+        type: str
     state:
         description:
-            - Assert the state of the CDN profile. Use C(present) to create or update a CDN profile and C(absent) to delete it.
+            - Assert the state of the AFD Endpoint. Use C(present) to create or update an AFD Endpoint and C(absent) to delete it.
         default: present
         type: str
         choices:
@@ -54,30 +54,35 @@ author:
 '''
 
 EXAMPLES = '''
-- name: Create an Endpoint
+- name: Create an AFD Endpoint
   azure_rm_afdendpoint:
+    name: myEndpoint
+    profile_name: myProfile
     resource_group: myResourceGroup
-    name: myCDN
-    sku: standard_akamai
+    state: present
     tags:
       testing: testing
 
-- name: Delete the CDN profile
-  azure_rm_cdnprofile:
-    resource_group: myResourceGroup
+- name: Delete the AFD Endpoint
+  azure_rm_afdendpoint:
     name: myCDN
+    profile_name: myProfile
+    resource_group: myResourceGroup
     state: absent
 '''
 RETURN = '''
-id:
-    description: Current state of the CDN profile.
+state:
+    description: Current state of the AFD Endpoint.
     returned: always
-    type: dict
-    example:
-            id: /subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourcegroups/myResourceGroup/providers/Microsoft.Cdn/profiles/myCDN
+    type: str
+id:
+    description:
+        - ID of the AFD Endpoint.
+    returned: always
+    type: str
+    sample: "id: /subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourcegroups/myResourceGroup/providers/Microsoft.Cdn/profiles/myProfile/endpoints/myEndpoint"
 '''
 from ansible_collections.azure.azcollection.plugins.module_utils.azure_rm_common import AzureRMModuleBase
-import uuid
 
 try:
     from azure.mgmt.cdn.models import AFDEndpoint, AFDEndpointUpdateParameters
@@ -112,18 +117,15 @@ class AzureRMEndpoint(AzureRMModuleBase):
             ),
             origin_response_timeout_seconds=dict(
                 type='int',
-                required=False,
                 default=60
             ),
             enabled_state=dict(
                 type='str',
-                required=False,
-                choices=['Enabled', 'Disabled'],
-                default = 'Enabled'
+                default = 'Enabled',
+                choices=['Enabled', 'Disabled']
             ),
             location=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             profile_name=dict(
                 type='str',
@@ -151,16 +153,11 @@ class AzureRMEndpoint(AzureRMModuleBase):
 
         self.endpoint_client = None
 
-        required_if = [
-            # ('state', 'present', ['sku'])
-        ]
-
         self.results = dict(changed=False)
 
         super(AzureRMEndpoint, self).__init__(derived_arg_spec=self.module_arg_spec,
                                                 supports_check_mode=True,
-                                                supports_tags=True,
-                                                required_if=required_if)
+                                                supports_tags=True)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
@@ -183,40 +180,45 @@ class AzureRMEndpoint(AzureRMModuleBase):
         if self.state == 'present':
 
             if not response:
-                self.log("Need to create the Endpoint")
+                self.log("Need to create the AFD Endpoint")
 
                 if not self.check_mode:
                     new_response = self.create_endpoint()
                     self.results['id'] = new_response['id']
+                    self.log("AFD Endpoint creation done")
 
                 self.results['changed'] = True
-
+                return self.results
+            
             else:
                 self.log('Results : {0}'.format(response))
+                self.results['id'] = response['id']                
+                
                 update_tags, response['tags'] = self.update_tags(response['tags'])
 
+                if update_tags:
+                    to_be_updated = True
+
                 if response['provisioning_state'] == "Succeeded":
-                    if update_tags:
-                        to_be_updated = True
                     if response['enabled_state'] != self.enabled_state:
                         to_be_updated = True
                     if response['origin_response_timeout_seconds'] != self.origin_response_timeout_seconds:
                         to_be_updated = True
                     
-                if to_be_updated:
-                    self.log("Need to update the Endpoint")
+                    if to_be_updated:
+                        self.log("Need to update the AFD Endpoint")
+                        self.results['changed'] = True
 
-                    if not self.check_mode:
-                        new_response = self.update_endpoint()
-                        self.results['id'] = new_response['id']
-
-                    self.results['changed'] = True
+                        if not self.check_mode:
+                            new_response = self.update_endpoint()
+                            self.results['id'] = new_response['id']
+                            self.log("AFD Endpoint update done")    
 
         elif self.state == 'absent':
             if not response:
-                self.fail("Endpoint {0} does not exist.".format(self.name))
+                self.log("AFD Endpoint {0} does not exist.".format(self.name))
             else:
-                self.log("Need to delete the Endpoint")
+                self.log("Need to delete the AFD Endpoint")
                 self.results['changed'] = True
 
                 if not self.check_mode:
@@ -227,11 +229,11 @@ class AzureRMEndpoint(AzureRMModuleBase):
 
     def create_endpoint(self):
         '''
-        Creates a Azure Endpoint.
+        Creates an AFD Endpoint.
 
-        :return: deserialized Azure Endpoint instance state dictionary
+        :return: deserialized AFD Endpoint instance state dictionary
         '''
-        self.log("Creating the Azure Endpoint instance {0}".format(self.name))
+        self.log("Creating the AFD Endpoint instance {0}".format(self.name))
 
         parameters = AFDEndpoint(
             location=self.location,
@@ -239,8 +241,6 @@ class AzureRMEndpoint(AzureRMModuleBase):
             origin_response_timeout_seconds=self.origin_response_timeout_seconds,
             enabled_state=self.enabled_state
         )
-
-        xid = str(uuid.uuid1())
 
         try:
             poller = self.endpoint_client.afd_endpoints.begin_create(self.resource_group,
@@ -250,16 +250,17 @@ class AzureRMEndpoint(AzureRMModuleBase):
             response = self.get_poller_result(poller)
             return endpoint_to_dict(response)
         except Exception as exc:
-            self.log('Error attempting to create Azure CDN profile instance.')
-            self.fail("Error Creating Azure Endpoint instance: {0}".format(exc.message))
+            self.log('Error attempting to create AFD Endpoint instance.')
+            self.fail("Error Creating AFD Endpoint instance: {0}".format(exc.message))
 
     def update_endpoint(self):
         '''
-        Updates an Azure Endpoint.
+        Updates an AFD Endpoint.
 
-        :return: deserialized Azure Endpoint instance state dictionary
+        :return: deserialized AFD Endpoint instance state dictionary
         '''
-        self.log("Updating the Azure Endpoint instance {0}".format(self.name))
+        self.log("Updating the AFD Endpoint instance {0}".format(self.name))
+
         parameters = AFDEndpointUpdateParameters(
             tags=self.tags,
             origin_response_timeout_seconds=self.origin_response_timeout_seconds,
@@ -271,56 +272,54 @@ class AzureRMEndpoint(AzureRMModuleBase):
             response = self.get_poller_result(poller)
             return endpoint_to_dict(response)
         except Exception as exc:
-            self.log('Error attempting to update Azure Endpoint instance.')
-            self.fail("Error updating Azure Endpoint instance: {0}".format(exc.message))
+            self.log('Error attempting to update AFD Endpoint instance.')
+            self.fail("Error updating AFD Endpoint instance: {0}".format(exc.message))
 
     def delete_endpoint(self):
         '''
-        Deletes the specified Azure Endpoint in the specified subscription and resource group.
+        Deletes the specified AFD Endpoint in the specified subscription and resource group.
 
         :return: True
         '''
-        self.log("Deleting the Endpoint {0}".format(self.name))
+        self.log("Deleting the AFD Endpoint {0}".format(self.name))
         try:
             poller = self.endpoint_client.afd_endpoints.begin_delete(
-                self.resource_group, self.profile_name, self.name)
+                resource_group_name=self.resource_group, profile_name=self.profile_name, endpoint_name=self.name)
             self.get_poller_result(poller)
             return True
         except Exception as e:
-            self.log('Error attempting to delete the Endpoint.')
-            self.fail("Error deleting the Endpoint: {0}".format(e.message))
+            self.log('Error attempting to delete the AFD Endpoint.')
+            self.fail("Error deleting the AFD Endpoint: {0}".format(e.message))
             return False
 
     def get_endpoint(self):
         '''
-        Gets the properties of the specified Endpoint.
+        Gets the properties of the specified AFD Endpoint.
 
-        :return: deserialized Endpoint state dictionary
+        :return: deserialized AFD Endpoint state dictionary
         '''
         self.log(
-            "Checking if the Endpoint {0} is present".format(self.name))
+            "Checking if the AFD Endpoint {0} is present".format(self.name))
         try:
-            response = self.endpoint_client.afd_endpoints.get(self.resource_group, self.profile_name, self.name)
+            response = self.endpoint_client.afd_endpoints.get(resource_group_name=self.resource_group, profile_name=self.profile_name, endpoint_name=self.name)
             self.log("Response : {0}".format(response))
-            self.log("Endpoint : {0} found".format(response.name))
+            self.log("AFD Endpoint : {0} found".format(response.name))
             return endpoint_to_dict(response)
         except Exception as err:
-            self.log('Did not find the Endpoint.' + err.args[0])
+            self.log('Did not find the AFD Endpoint.')
             return False
 
     def get_endpoint_client(self):
         if not self.endpoint_client:
             self.endpoint_client = self.get_mgmt_svc_client(CdnManagementClient,
                                                        base_url=self._cloud_environment.endpoints.resource_manager,
-                                                       api_version='2017-04-02') # TODO: Update the API Version
+                                                       api_version='2023-05-01')
         return self.endpoint_client
 
 
 def main():
     """Main execution"""
     AzureRMEndpoint()
-    # x = CdnManagementClient()
-    # x.afd_endpoints.
     
 if __name__ == '__main__':
     main()
