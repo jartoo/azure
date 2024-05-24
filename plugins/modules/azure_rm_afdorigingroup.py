@@ -66,10 +66,6 @@ options:
                 description:
                     - The number of samples within the sample period that must succeed.
                 type: int
-    location:
-        description:
-            - Valid Azure location. Defaults to location of the resource group.
-        type: str
     name:
         description:
             - Name of the AFD OriginGroup.
@@ -241,11 +237,6 @@ class AzureRMOriginGroup(AzureRMModuleBase):
 
         to_be_updated = False
 
-        # Do not need the resource group location
-        # resource_group = self.get_resource_group(self.resource_group)
-        # if not self.location:
-        #     self.location = resource_group.location
-
         response = self.get_origingroup()
 
         if self.state == 'present':
@@ -282,6 +273,7 @@ class AzureRMOriginGroup(AzureRMModuleBase):
                     
                 if to_be_updated:
                     self.log("Need to update the AFD OriginGroup")
+                    self.results['id'] = response['id']
 
                     if not self.check_mode:
                         new_response = self.update_origingroup()
@@ -292,13 +284,13 @@ class AzureRMOriginGroup(AzureRMModuleBase):
         elif self.state == 'absent':
             if not response:
                 self.log("AFD OriginGroup {0} does not exist.".format(self.name))
+                self.results['id'] = ""
             else:
                 self.log("Need to delete the OriginGroup")
                 self.results['changed'] = True
-
+                self.results['id'] = response['id']
                 if not self.check_mode:
                     self.delete_origingroup()
-                    self.results['id'] = response['id']
                     self.log("Azure AFD OriginGroup deleted")
 
         return self.results

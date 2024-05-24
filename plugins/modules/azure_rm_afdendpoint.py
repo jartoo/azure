@@ -106,7 +106,6 @@ def endpoint_to_dict(endpoint):
         id = endpoint.id,
         location=endpoint.location,
         name=endpoint.name,
-        origin_response_timeout_seconds=endpoint.origin_response_timeout_seconds,
         provisioning_state=endpoint.provisioning_state,
         tags=endpoint.tags,
         type=endpoint.type
@@ -120,10 +119,6 @@ class AzureRMEndpoint(AzureRMModuleBase):
             name=dict(
                 type='str',
                 required=True
-            ),
-            origin_response_timeout_seconds=dict(
-                type='int',
-                default=60
             ),
             enabled_state=dict(
                 type='str',
@@ -154,7 +149,6 @@ class AzureRMEndpoint(AzureRMModuleBase):
         self.profile_name = None
         self.state = None
         self.tags = None
-        self.origin_response_timeout_seconds = None
         self.enabled_state = None
 
         self.endpoint_client = None
@@ -175,8 +169,8 @@ class AzureRMEndpoint(AzureRMModuleBase):
 
         to_be_updated = False
 
-        resource_group = self.get_resource_group(self.resource_group)
         if not self.location:
+            resource_group = self.get_resource_group(self.resource_group)
             self.location = resource_group.location
 
         response = self.get_endpoint()
@@ -208,8 +202,6 @@ class AzureRMEndpoint(AzureRMModuleBase):
                 if response['provisioning_state'] == "Succeeded":
                     if response['enabled_state'] != self.enabled_state:
                         to_be_updated = True
-                    if response['origin_response_timeout_seconds'] != self.origin_response_timeout_seconds:
-                        to_be_updated = True
                     
                     if to_be_updated:
                         self.log("Need to update the AFD Endpoint")
@@ -223,13 +215,14 @@ class AzureRMEndpoint(AzureRMModuleBase):
         elif self.state == 'absent':
             if not response:
                 self.log("AFD Endpoint {0} does not exist.".format(self.name))
+                self.results['id'] = ""
             else:
                 self.log("Need to delete the AFD Endpoint")
                 self.results['changed'] = True
+                self.results['id'] = response['id']
 
                 if not self.check_mode:
                     self.delete_endpoint()
-                    self.results['id'] = response['id']
                     self.log("Azure AFD Endpoint deleted")
 
         return self.results
@@ -245,7 +238,6 @@ class AzureRMEndpoint(AzureRMModuleBase):
         parameters = AFDEndpoint(
             location=self.location,
             tags=self.tags,
-            origin_response_timeout_seconds=self.origin_response_timeout_seconds,
             enabled_state=self.enabled_state
         )
 
@@ -270,12 +262,14 @@ class AzureRMEndpoint(AzureRMModuleBase):
 
         parameters = AFDEndpointUpdateParameters(
             tags=self.tags,
-            origin_response_timeout_seconds=self.origin_response_timeout_seconds,
-            enabled_state=self.enabled
+            enabled_state=self.enabled_state
         )
         
         try:
-            poller = self.endpoint_client.afd_endpoints.begin_update(resource_group_name=self.resource_group, profile_name=self.profile_name, endpoint_name=self.name, endpoint_update_properties=parameters)
+            poller = self.endpoint_client.afd_endpoints.begin_update(resource_group_name=self.resource_group,
+                profile_name=self.profile_name,
+                endpoint_name=self.name,
+                endpoint_update_properties=parameters)
             response = self.get_poller_result(poller)
             return endpoint_to_dict(response)
         except Exception as exc:

@@ -188,7 +188,7 @@ class AzureRMAFDOriginGroupInfo(AzureRMModuleBase):
 
         self.results = dict(
             changed=False,
-            origingroups=[]
+            afdorigingroups=[]
         )
 
         self.name = None
