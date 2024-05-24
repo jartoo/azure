@@ -1,16 +1,20 @@
 {
     "ANSIBLE_MODULE_ARGS": {
-      "name": "webapp-group",
+      "name": "webapp-group2",
       "profile_name": "allstars-dev-fd-jpt",
       "resource_group": "aaa-id-for-testing-aaa-rg",
       "subscription_id": "f5c96a5a-b3f6-470f-8a0c-817cf3833928",
       "state": "present",
-      "probe_interval_in_seconds": 100,
-      "probe_path": "/",
-      "probe_protocol": "Https",
-      "probe_request_type": "HEAD",
-      "additional_latency_in_milliseconds": 50,
-      "sample_size": 4,
-      "successful_samples_required": 3
+      "health_probe_settings": {
+        "probe_interval_in_seconds": 100,
+        "probe_path": "/test",
+        "probe_protocol": "Https",
+        "probe_request_type": "HEAD"
+      },
+      "load_balancing_settings": {
+        "additional_latency_in_milliseconds": 50,
+        "sample_size": 4,
+        "successful_samples_required": 3
+      }
     }
 }

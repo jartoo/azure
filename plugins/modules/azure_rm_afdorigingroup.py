@@ -1,6 +1,9 @@
 #!/usr/bin/python
 #
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+#
+# Python SDK Reference: https://learn.microsoft.com/en-us/python/api/azure-mgmt-cdn/azure.mgmt.cdn.operations.afdorigingroupsoperations?view=azure-python
+#
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
@@ -8,35 +11,90 @@ __metaclass__ = type
 DOCUMENTATION = '''
 ---
 module: azure_rm_afdorigingroup
-version_added: "0.1.0"
-short_description: Manage an Azure Front Door OriginGroup
+
+version_added: ""
+
+short_description: Manage an Azure Front Door OriginGroup to be used with Standard or Premium Frontdoor
+
 description:
-    - Create, update and delete an Azure Front Door OriginGroup to be used by a Front Door Service Profile created using azure_rm_cdnprofile.
+    - Create, update and delete an Azure Front Door (AFD) OriginGroup to be used by a Front Door Service Profile created using azure_rm_cdnprofile. This differs from the Front Door classic service and only is intended to be used by the Standard or Premium service offering.
 
 options:
-    resource_group:
+    health_probe_settings
         description:
-            - Name of a resource group where the CDN front door origingroup exists or will be created.
-        required: true
+            - Health probe settings to the origin that is used to determine the health of the origin.
+        type: dict
+        suboptions:
+            probe_interval_in_seconds:
+                description:
+                    - The number of seconds between health probes.
+                type: int
+            probe_path:
+                description:
+                    - The path relative to the origin that is used to determine the health of the origin.
+                type: str
+            probe_protocol:
+                description:
+                    - Protocol to use for health probe.
+                type: str
+                choices:
+                    - Http
+                    - Https
+                    - NotSet
+            probe_request_type:
+                description:
+                    - The type of health probe request that is made.
+                type: str
+                choices:
+                    - GET
+                    - HEAD
+                    - NotSet
+    load_balancing_settings:
+        description:
+            - Load balancing settings for a backend pool.
+        type: dict
+        suboptions:
+            additional_latency_in_milliseconds:
+                description:
+                    - The additional latency in milliseconds for probes to fall into the lowest latency bucket.
+                type: int
+            sample_size:
+                description:
+                    - The number of samples to consider for load balancing decisions.
+                type: int
+            successful_samples_required:
+                description:
+                    - The number of samples within the sample period that must succeed.
+                type: int
+    location:
+        description:
+            - Valid Azure location. Defaults to location of the resource group.
         type: str
     name:
         description:
-            - Name of the Front Door OriginGroup.
+            - Name of the AFD OriginGroup.
         required: true
         type: str
     profile_name:
         description:
-            - Name of the Front Door Profile.
+            - Name of the AFD Profile where the OriginGroup will be added.
         required: true
         type: str
-    location:
+    resource_group:
         description:
-            - Valid Azure location. Defaults to location of the resource group.
+            - Name of a resource group where the AFD OriginGroup exists or will be created.
         required: true
         type: str
+    session_affinity_state:
+        description:
+            - Whether to allow session affinity on this host.
+        type: str
+        choices:
+            - Enabled
+            - Disabled
     state:
         description:
-            - Assert the state of the CDN profile. Use C(present) to create or update a CDN profile and C(absent) to delete it.
+            - Assert the state of the AFD OriginGroup. Use C(present) to create or update an AFD OriginGroup and C(absent) to delete it.
         default: present
         type: str
         choices:
@@ -51,84 +109,35 @@ author:
 '''
 
 EXAMPLES = '''
+- name: Create an AFD OriginGroup
+  azure_rm_afdendpoint:
+    name: myOriginGroup
+    profile_name: myProfile
+    resource_group: myResourceGroup
+    state: present
+    tags:
+      testing: testing
+
+- name: Delete the AFD OriginGroup
+  azure_rm_afdendpoint:
+    name: myOriginGroup
+    profile_name: myProfile
+    resource_group: myResourceGroup
+    state: absent
 
 '''
 RETURN = '''
-additional_latency_in_milliseconds:
-    description: 
-    returned: 
-    type: int
-    example:
-deployment_status:
-    description: 
-    returned: 
-    type: 
-    example:
 id:
-    description: 
-    returned: 
+    description:
+        - ID of the AFD OriginGroup.
+    returned: always
     type: str
-    example:
-name:
-    description: 
-    returned: 
-    type: str
-    example:
-probe_interval_in_seconds:
-    description: 
-    returned: 
-    type: int
-    example:
-probe_path:
-    description: 
-    returned: 
-    type: str
-    example:
-probe_protocol:
-    description: 
-    returned: 
-    type: str
-    example:
-probe_request_type:
-    description: 
-    returned: 
-    type: str
-    example:
-provisioning_state:
-    description: 
-    returned: 
-    type: str
-    example:
-sample_size:
-    description: 
-    returned: 
-    type: int
-    example:
-session_affinity_state:
-    description: 
-    returned: 
-    type: str
-    example:
-successful_samples_required:
-    description: 
-    returned: 
-    type: int
-    example:
-traffic_restoration_time_to_healed_or_new_endpoints_in_minutes:
-    description: 
-    returned: 
-    type: int
-    example:
-type:
-    description: 
-    returned: 
-    type: str
-    example:
+    sample: "id: /subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourcegroups/myResourceGroup/providers/Microsoft.Cdn/profiles/myProfile/origingroups/myOriginGroup"
 '''
 from ansible_collections.azure.azcollection.plugins.module_utils.azure_rm_common import AzureRMModuleBase
 
 try:
-    from azure.mgmt.cdn.models import AFDOriginGroup, LoadBalancingSettingsParameters, HealthProbeParameters #, ResponseBasedOriginErrorDetectionParameters, ResponseBasedDetectedErrorTypes
+    from azure.mgmt.cdn.models import AFDOriginGroup, LoadBalancingSettingsParameters, HealthProbeParameters
     from azure.mgmt.cdn import CdnManagementClient
 except ImportError as ec:
     # This is handled in azure_rm_common
@@ -139,7 +148,7 @@ def origingroup_to_dict(origingroup):
     return dict(
         additional_latency_in_milliseconds = origingroup.load_balancing_settings.additional_latency_in_milliseconds,
         deployment_status = origingroup.deployment_status,
-        id = origingroup.id,
+        id=origingroup.id,
         name=origingroup.name,
         probe_interval_in_seconds = origingroup.health_probe_settings.probe_interval_in_seconds,
         probe_path = origingroup.health_probe_settings.probe_path,
@@ -158,6 +167,23 @@ class AzureRMOriginGroup(AzureRMModuleBase):
 
     def __init__(self):
         self.module_arg_spec = dict(
+            load_balancing_settings=dict(
+                type='dict',
+                options=dict(
+                    additional_latency_in_milliseconds=dict(type='int'),
+                    sample_size=dict(type='int'),
+                    successful_samples_required=dict(type='int')
+                )
+            ),
+            health_probe_settings=dict(
+                type='dict',
+                options=dict(
+                    probe_path=dict(type='str'),
+                    probe_request_type=dict(type='str',choices=['GET', 'HEAD', 'NotSet']),
+                    probe_protocol=dict(type='str',choices=['Http', 'Https', 'NotSet']),
+                    probe_interval_in_seconds=dict(type='int')
+                )
+            ),
             name=dict(
                 type='str',
                 required=True
@@ -170,36 +196,6 @@ class AzureRMOriginGroup(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            sample_size=dict(
-                type='int',
-                required=False
-            ),
-            successful_samples_required=dict(
-                type='int',
-                required=False
-            ),
-            additional_latency_in_milliseconds=dict(
-                type='int',
-                required=False
-            ),
-            probe_path=dict(
-                type='str',
-                required=False
-            ),
-            probe_request_type=dict(
-                type='str',
-                required=False,
-                choices=['GET', 'HEAD', 'NOT_SET']
-            ),
-            probe_protocol=dict(
-                type='str',
-                required=False,
-                choices=['Http', 'Https', 'NotSet']
-            ),
-            probe_interval_in_seconds=dict(
-                type='int',
-                required=False
-            ),
             session_affinity_state=dict(
                 type='str',
                 required=False,
@@ -209,20 +205,17 @@ class AzureRMOriginGroup(AzureRMModuleBase):
                 type='str',
                 default='present',
                 choices=['present', 'absent']
-            ),
-            traffic_restoration_time_to_healed_or_new_endpoints_in_minutes=dict(
-                type='int',
-                required=False
             )
         )
-        self.sample_size = None
-        self.successful_samples_required = None
-        self.additional_latency_in_milliseconds = None
-        self.probe_path = None
-        self.probe_request_type = None
-        self.probe_protocol = None
-        self.probe_interval_in_seconds = None
-        self.traffic_restoration_time_to_healed_or_new_endpoints_in_minutes = None
+        self.health_probe_settings = dict()
+        self.health_probe_settings['probe_path'] = None
+        self.health_probe_settings['probe_request_type'] = None
+        self.health_probe_settings['probe_protocol'] = None
+        self.health_probe_settings['probe_interval_in_seconds'] = None
+        self.load_balancing_settings = dict()
+        self.load_balancing_settings['additional_latency_in_milliseconds'] = None
+        self.load_balancing_settings['sample_size'] = None
+        self.load_balancing_settings['successful_samples_required'] = None
         self.session_affinity_state = None
 
         self.resource_group = None
@@ -232,16 +225,11 @@ class AzureRMOriginGroup(AzureRMModuleBase):
 
         self.origingroup_client = None
 
-        required_if = [
-            # ('state', 'present', ['sku']) # TODO: Flesh these out
-        ]
-
         self.results = dict(changed=False)
 
         super(AzureRMOriginGroup, self).__init__(derived_arg_spec=self.module_arg_spec,
                                                 supports_check_mode=True,
-                                                supports_tags=False,
-                                                required_if=required_if)
+                                                supports_tags=False)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
@@ -273,28 +261,27 @@ class AzureRMOriginGroup(AzureRMModuleBase):
 
             else:
                 self.log('Results : {0}'.format(response))
-                
-                if response['probe_path'] != self.probe_path and self.probe_path:
+                self.results['id'] = response['id']
+
+                if response['probe_path'] != self.health_probe_settings['probe_path'] and self.health_probe_settings['probe_path']:
                     to_be_updated = True
-                if response['sample_size'] != self.sample_size and self.sample_size:
+                if response['probe_request_type'] != self.health_probe_settings['probe_request_type'] and self.health_probe_settings['probe_request_type']:
                     to_be_updated = True
-                if response['successful_samples_required'] != self.successful_samples_required and self.successful_samples_required:
+                if response['probe_protocol'] != self.health_probe_settings['probe_protocol'] and self.health_probe_settings['probe_protocol']:
                     to_be_updated = True
-                if response['additional_latency_in_milliseconds'] != self.additional_latency_in_milliseconds and self.additional_latency_in_milliseconds:
+                if response['probe_interval_in_seconds'] != self.health_probe_settings['probe_interval_in_seconds'] and self.health_probe_settings['probe_interval_in_seconds']:
                     to_be_updated = True
-                if response['probe_request_type'] != self.probe_request_type and self.probe_request_type:
+                if response['sample_size'] != self.load_balancing_settings['sample_size'] and self.load_balancing_settings['sample_size']:
                     to_be_updated = True
-                if response['probe_protocol'] != self.probe_protocol and self.probe_protocol:
+                if response['successful_samples_required'] != self.load_balancing_settings['successful_samples_required'] and self.load_balancing_settings['successful_samples_required']:
                     to_be_updated = True
-                if response['probe_interval_in_seconds'] != self.probe_interval_in_seconds and self.probe_interval_in_seconds:
-                    to_be_updated = True
-                if response['traffic_restoration_time_to_healed_or_new_endpoints_in_minutes'] != self.traffic_restoration_time_to_healed_or_new_endpoints_in_minutes and self.traffic_restoration_time_to_healed_or_new_endpoints_in_minutes:
+                if response['additional_latency_in_milliseconds'] != self.load_balancing_settings['additional_latency_in_milliseconds'] and self.load_balancing_settings['additional_latency_in_milliseconds']:
                     to_be_updated = True
                 if response['session_affinity_state'] != self.session_affinity_state and self.session_affinity_state:
                     to_be_updated = True
                     
                 if to_be_updated:
-                    self.log("Need to update the OriginGroup")
+                    self.log("Need to update the AFD OriginGroup")
 
                     if not self.check_mode:
                         new_response = self.update_origingroup()
@@ -304,7 +291,7 @@ class AzureRMOriginGroup(AzureRMModuleBase):
 
         elif self.state == 'absent':
             if not response:
-                self.fail("OriginGroup {0} does not exist.".format(self.name))
+                self.log("AFD OriginGroup {0} does not exist.".format(self.name))
             else:
                 self.log("Need to delete the OriginGroup")
                 self.results['changed'] = True
@@ -312,6 +299,7 @@ class AzureRMOriginGroup(AzureRMModuleBase):
                 if not self.check_mode:
                     self.delete_origingroup()
                     self.results['id'] = response['id']
+                    self.log("Azure AFD OriginGroup deleted")
 
         return self.results
 
@@ -324,39 +312,28 @@ class AzureRMOriginGroup(AzureRMModuleBase):
         self.log("Creating the Azure OriginGroup instance {0}".format(self.name))
 
         loadbalancingsettings = LoadBalancingSettingsParameters(
-            sample_size = self.sample_size,
-            successful_samples_required = self.successful_samples_required,
-            additional_latency_in_milliseconds = self.additional_latency_in_milliseconds
+            sample_size = self.load_balancing_settings['sample_size'],
+            successful_samples_required = self.load_balancing_settings['successful_samples_required'],
+            additional_latency_in_milliseconds = self.load_balancing_settings['additional_latency_in_milliseconds']
         )
 
-        # responsebaseddetectionerrortypes = 
-        # responsebasedfailoverthresholdpercentage = ''
-
-        # responsebasedoriginerrordetectionparameter = ResponseBasedOriginErrorDetectionParameters(
-        #     response_based_detected_error_types=responsebaseddetectionerrortypes,
-        #     response_based_failover_threshold_percentage=responsebasedfailoverthresholdpercentage,
-        #     http_error_ranges=self.http_error_ranges
-        # )
-
         healthprobesettings = HealthProbeParameters(
-            probe_path=self.probe_path,
-            probe_request_type=self.probe_request_type,
-            probe_protocol=self.probe_protocol,
-            probe_interval_in_seconds=self.probe_interval_in_seconds
+            probe_path=self.health_probe_settings['probe_path'],
+            probe_request_type=self.health_probe_settings['probe_request_type'],
+            probe_protocol=self.health_probe_settings['probe_protocol'],
+            probe_interval_in_seconds=self.health_probe_settings['probe_interval_in_seconds']
         )
 
         parameters = AFDOriginGroup(
             load_balancing_settings=loadbalancingsettings,
             health_probe_settings=healthprobesettings
-            # traffic_restoration_time_to_healed_or_new_endpoints_in_minutes=self.traffic_restoration_time_to_healed_or_new_endpoints_in_minutes,
-            # response_based_afd_origin_error_detection_settings=responsebasedoriginerrordetectionparameter
         )
 
         try:
             poller = self.origingroup_client.afd_origin_groups.begin_create(self.resource_group,
-                                                           self.profile_name,
-                                                           self.name,
-                                                           parameters)
+                self.profile_name,
+                self.name,
+                parameters)
             response = self.get_poller_result(poller)
             return origingroup_to_dict(response)
         except Exception as exc:
@@ -372,27 +349,28 @@ class AzureRMOriginGroup(AzureRMModuleBase):
         self.log("Updating the Azure OriginGroup instance {0}".format(self.name))
 
         loadbalancingsettings = LoadBalancingSettingsParameters(
-            sample_size = self.sample_size,
-            successful_samples_required = self.successful_samples_required,
-            additional_latency_in_milliseconds = self.additional_latency_in_milliseconds
+            sample_size = self.load_balancing_settings['sample_size'],
+            successful_samples_required = self.load_balancing_settings['successful_samples_required'],
+            additional_latency_in_milliseconds = self.load_balancing_settings['additional_latency_in_milliseconds']
         )
 
         healthprobesettings = HealthProbeParameters(
-            probe_path=self.probe_path,
-            probe_request_type=self.probe_request_type,
-            probe_protocol=self.probe_protocol,
-            probe_interval_in_seconds=self.probe_interval_in_seconds
+            probe_path=self.health_probe_settings['probe_path'],
+            probe_request_type=self.health_probe_settings['probe_request_type'],
+            probe_protocol=self.health_probe_settings['probe_protocol'],
+            probe_interval_in_seconds=self.health_probe_settings['probe_interval_in_seconds']
         )
 
         parameters = AFDOriginGroup(
             load_balancing_settings=loadbalancingsettings,
             health_probe_settings=healthprobesettings
-            # traffic_restoration_time_to_healed_or_new_endpoints_in_minutes=self.traffic_restoration_time_to_healed_or_new_endpoints_in_minutes,
-            # response_based_afd_origin_error_detection_settings=responsebasedoriginerrordetectionparameter
         )
         
         try:
-            poller = self.origingroup_client.afd_origin_groups.begin_update(resource_group_name=self.resource_group, profile_name=self.profile_name, origin_group_name=self.name, origin_group_update_properties=parameters)
+            poller = self.origingroup_client.afd_origin_groups.begin_update(resource_group_name=self.resource_group,
+                profile_name=self.profile_name,
+                origin_group_name=self.name,
+                origin_group_update_properties=parameters)
             response = self.get_poller_result(poller)
             return origingroup_to_dict(response)
         except Exception as exc:

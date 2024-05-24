@@ -3,7 +3,6 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 #
 # Python SDK Reference: https://learn.microsoft.com/en-us/python/api/azure-mgmt-cdn/azure.mgmt.cdn.operations.afdendpointsoperations?view=azure-python
-# TODO: Add host_name to the returned results
 #
 
 from __future__ import absolute_import, division, print_function
@@ -21,24 +20,23 @@ description:
     - Create, update and delete an Azure Front Door (AFD) Endpoint to be used by a Front Door Service Profile created using azure_rm_cdnprofile.  This differs from the Front Door classic service and only is intended to be used by the Standard or Premium service offering.
 
 options:
-    resource_group:
+    location:
         description:
-            - Name of a resource group where the Azure Front Door Endpoint exists or will be created.
-        required: true
+            - Valid Azure location. Defaults to location of the resource group.
         type: str
     name:
         description:
             - Name of the AFD Endpoint.
         required: true
         type: str
-    location:
-        description:
-            - Valid Azure location. Defaults to location of the resource group.
-        required: true
-        type: str
     profile_name:
         description:
             - Name of the AFD Profile where the Endpoint will be attached to.
+        required: true
+        type: str
+    resource_group:
+        description:
+            - Name of a resource group where the Azure Front Door Endpoint exists or will be created.
         required: true
         type: str
     state:
@@ -70,7 +68,7 @@ EXAMPLES = '''
 
 - name: Delete the AFD Endpoint
   azure_rm_afdendpoint:
-    name: myCDN
+    name: myEndPoint
     profile_name: myProfile
     resource_group: myResourceGroup
     state: absent
@@ -88,10 +86,6 @@ host_name:
     returned: always
     type: str
     sample: "myendpoint.azurefd.net"
-state:
-    description: Current state of the AFD Endpoint.
-    returned: always
-    type: str
 
 '''
 from ansible_collections.azure.azcollection.plugins.module_utils.azure_rm_common import AzureRMModuleBase
@@ -186,8 +180,6 @@ class AzureRMEndpoint(AzureRMModuleBase):
             self.location = resource_group.location
 
         response = self.get_endpoint()
-
-        # TODO: Need to check if the endpoint name is valid and not already taken
 
         if self.state == 'present':
 

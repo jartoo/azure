@@ -17,7 +17,7 @@ version_added: ""
 short_description: Get Azure Front Door Endpoint facts to be used with Standard or Premium Frontdoor Service
 
 description:
-    - Get facts for a specific Aazure Front Door (AFD) Endpoint or all AFD Endpoints.  This differs from the Front Door classic service and only is intended to be used by the Standard or Premium service offering.
+    - Get facts for a specific Azure Front Door (AFD) Endpoint or all AFD Endpoints.  This differs from the Front Door classic service and only is intended to be used by the Standard or Premium service offering.
 
 options:
     resource_group:
@@ -144,7 +144,7 @@ except ImportError:
 
 import re
 
-AZURE_OBJECT_CLASS = 'endpoints'
+AZURE_OBJECT_CLASS = 'AFDEndpoint'
 
 
 class AzureRMAFDEndpointInfo(AzureRMModuleBase):
@@ -170,7 +170,7 @@ class AzureRMAFDEndpointInfo(AzureRMModuleBase):
 
         self.results = dict(
             changed=False,
-            endpoints=[]
+            afdendpoints=[]
         )
 
         self.name = None
@@ -195,9 +195,9 @@ class AzureRMAFDEndpointInfo(AzureRMModuleBase):
                                                    api_version='2023-05-01')
 
         if self.name:
-            self.results['endpoints'] = self.get_item()
+            self.results['afdendpoints'] = self.get_item()
         else:
-            self.results['endpoints'] = self.list_by_profile()
+            self.results['afdendpoints'] = self.list_by_profile()
 
         return self.results
 
