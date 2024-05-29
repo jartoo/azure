@@ -46,7 +46,7 @@ options:
                     name:
                         description:
                             - The name of the condition for the delivery rule.
-                        type: int
+                        type: str
                         choices:
                             - ClientPort
                             - Cookies
@@ -80,6 +80,18 @@ options:
                             - DeliveryRuleIsDeviceConditionParameters
                             - DeliveryRulePostArgsConditionParameters
                             - DeliveryRuleQueryStringConditionParameters
+                            - DeliveryRuleRemoteAddressConditionParameters
+                            - DeliveryRuleRequestBodyConditionParameters
+                            - DeliveryRuleRequestHeaderConditionParameters
+                            - DeliveryRuleRequestMethodConditionParameters
+                            - DeliveryRuleRequestSchemeConditionParameters
+                            - DeliveryRuleRequestUriConditionParameters
+                            - DeliveryRuleServerPortConditionParameters
+                            - DeliveryRuleSocketAddrConditionParameters
+                            - DeliveryRuleSslProtocolConditionParameters
+                            - DeliveryRuleUrlFileExtensionMatchConditionParameters
+                            - DeliveryRuleUrlFilenameConditionParameters
+                            - DeliveryRuleUrlPathMatchConditionParameters
                     operator:
                         description:
                             - Describes operator to be matched.
@@ -96,6 +108,8 @@ options:
                             - GreaterThan
                             - GreaterThanOrEqual
                             - RegEx
+                            - IPMatch
+                            - GeoMatch
                     negate_condition:
                         description:
                             - Describes if this is a negate condition or not.
@@ -127,8 +141,181 @@ options:
                 suboptions:
                     name:
                         description:
+                            - The name of the action for the delivery rule.
+                        type: str
+                        choices:
+                            - CacheExpiration
+                            - CacheKeyQueryString
+                            - ModifyRequestHeader
+                            - ModifyResponseHeader
+                            - OriginGroupOverride
+                            - RouteConfigurationOverride
+                            - UrlRedirect
+                            - UrlRewrite
+                            - UrlSigning
+                    type_name:
+                        description:
                             - The name of the condition for the delivery rule.
-                        type: int
+                        required: True
+                        type: str
+                        choices:
+                            - DeliveryRuleCacheExpirationActionParameters
+                            - DeliveryRuleCacheKeyQueryStringBehaviorActionParameters
+                            - DeliveryRuleHeaderActionParameters
+                            - DeliveryRuleOriginGroupOverrideActionParameters
+                            - DeliveryRuleRouteConfigurationOverrideActionParameters
+                            - DeliveryRuleUrlRedirectActionParameters
+                            - DeliveryRuleUrlRewriteActionParameters
+                            - DeliveryRuleUrlSigningActionParameters
+                    cache_behavior:
+                        description:
+                            - Caching behavior for the requests.
+                        type: str
+                        choices:
+                            - BypassCache
+                            - Override
+                            - SetIfMissing
+                    cache_configuration:
+                        description:
+                            - The caching configuration for this route. To disable caching, do not provide a cacheConfiguration object.
+                        type: dict
+                        suboptions:
+                            query_string_caching_behavior:
+                                description:
+                                    - Defines how Frontdoor caches requests that include query strings. You can ignore any query strings when caching, ignore specific query strings, cache every request with a unique URL, or cache specific query strings. 
+                                type: str
+                            query_parameters:
+                                description:
+                                    - query parameters to include or exclude (comma separated).
+                                type: str
+                            compression_settings:
+                                description:
+                                    - query parameters to include or exclude (comma separated).
+                                type: dict
+                                suboptions:
+                                    content_types_to_compress:
+                                        description:
+                                            - List of content types (str) on which compression applies. The value should be a valid MIME type.
+                                        type: list
+                                    is_compression_enabled:
+                                        description:
+                                            - Indicates whether content compression is enabled on AzureFrontDoor. If compression is enabled, content will be served as compressed if user requests for a compressed version. Content won't be compressed on AzureFrontDoor when requested content is smaller than 1 byte or larger than 1 MB.
+                                        type: bool
+                    cache_type:
+                        description:
+                            - The level at which the content needs to be cached.
+                        type: str
+                        default: all
+                    cache_duration:
+                        description:
+                            - The duration for which the content needs to be cached. Allowed format is [d.]hh:mm:ss.
+                        type: str
+                    header_action:
+                        description:
+                            - Action to perform.
+                        type: str
+                        choices:
+                            - Append
+                            - Overwrite
+                            - Delete
+                    header_name:
+                        description:
+                            - Name of the header to modify.
+                        type: str
+                    origin_group:
+                        description:
+                            - defines the OriginGroup that would override the DefaultOriginGroup.
+                        type: str
+                    origin_group_override:
+                        description:
+                            - A reference to the origin group override configuration. Leave empty to use the default origin group on route.
+                        type: str
+                    query_string_behavior:
+                        description:
+                            - 
+                        type: str
+                        choices:
+                            - Include
+                            - IncludeAll
+                            - Exclude
+                            - ExcludeAll
+                    query_parameters:
+                        description:
+                            - query parameters to include or exclude (comma separated).
+                        type: str
+                    value:
+                        description:
+                            - Value for the specified action.
+                        type: str
+                    redirect_type:
+                        description:
+                            - The redirect type the rule will use when redirecting traffic.
+                        type: str
+                        choices:
+                            - Moved
+                            - Found
+                            - TemporaryRedirect
+                            - PermanentRedirect
+                    destination_protocol:
+                        description:
+                            - Protocol to use for the redirect.
+                        default: MatchRequest
+                        type: str
+                        choices:
+                            - Http
+                            - Https
+                            - MatchRequest
+                    custom_path:
+                        description:
+                            - The full path to redirect. Path cannot be empty and must start with /. Leave empty to use the incoming path as destination path.
+                        type: str
+                    custom_hostname:
+                        description:
+                            - Host to redirect. Leave empty to use the incoming host as the destination host.
+                        type: str
+                    custom_query_string:
+                        description:
+                            - The set of query strings to be placed in the redirect URL. Setting this value would replace any existing query string; leave empty to preserve the incoming query string. Query string must be in <key>=:code:<value> format. ? and & will be added automatically so do not include them.
+                        type: str
+                    custom_fragment:
+                        description:
+                            - Fragment to add to the redirect URL. Fragment is the part of the URL that comes after #. Do not include the #
+                        type: str
+                    source_pattern:
+                        description:
+                            - Define a request URI pattern that identifies the type of requests that may be rewritten. If value is blank, all strings are matched.
+                        type: str
+                    destination:
+                        description:
+                            - Define the relative URL to which the above requests will be rewritten by.
+                        type: str
+                    preserve_unmatched_path:
+                        description:
+                            - Whether to preserve unmatched path.
+                        default: True
+                        type: bool
+                    algorithm:
+                        description:
+                            - Algorithm to use for URL signing
+                        default: SHA256
+                        type: str
+                    parameter_name_override:
+                        description:
+                            - Defines which query string parameters in the url to be considered for expires, key id etc.
+                        type: list
+                        suboptions:
+                            param_indicator:
+                                description:
+                                    - Indicates the purpose of the parameter.
+                                type: str
+                                choices:
+                                    - Expires
+                                    - KeyId
+                                    - Signature
+                            param_name:
+                                description:
+                                    - Parameter name
+                                type: str
             match_processing_behavior:
                 description:
                     - If this rule is a match should the rules engine continue running the remaining rules or stop.
