@@ -1,7 +1,9 @@
 #!/usr/bin/python
 #
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
-
+#
+# Python SDK Reference: https://learn.microsoft.com/en-us/python/api/azure-mgmt-cdn/azure.mgmt.cdn.operations.routesoperations?view=azure-python
+#
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
@@ -14,29 +16,100 @@ description:
     - Create, update and delete an Azure Front Door Route to be used by a Front Door Service Profile created using azure_rm_cdnprofile.
 
 options:
-    resource_group:
+    endpoint_name:
         description:
-            - Name of a resource group where the CDN front door route exists or will be created.
+            - Name of the endpoint under the profile which is unique globally.
         required: true
         type: str
     name:
         description:
-            - Name of the Front Door Route.
+            - Name of the routing rule.
         required: true
         type: str
     profile_name:
         description:
-            - Name of the Front Door Profile.
+            - Name of the Azure Front Door Standard or Azure Front Door Premium profile which is unique within the resource group.
         required: true
         type: str
-    location:
+    resource_group_name:
         description:
-            - Valid Azure location. Defaults to location of the resource group.
+            - Name of the Resource group within the Azure subscription.
         required: true
         type: str
+    route:
+        description:
+            - Route properties
+        type: dict
+        suboptions:
+            cache_configuration:
+                description:
+                    - The caching configuration for this route. To disable caching, do not provide a cacheConfiguration object.
+                type: dict
+                suboptions:
+                    query_string_caching_behavior:
+                        description:
+                            - Defines how Frontdoor caches requests that include query strings. You can ignore any query strings when caching, ignore specific query strings, cache every request with a unique URL, or cache specific query strings. 
+                        type: str
+                    query_parameters:
+                        description:
+                            - query parameters to include or exclude (comma separated).
+                        type: str
+                    compression_settings:
+                        description:
+                            - query parameters to include or exclude (comma separated).
+                        type: dict
+                        suboptions:
+                            content_types_to_compress:
+                                description:
+                                    - List of content types (str) on which compression applies. The value should be a valid MIME type.
+                                type: list
+                            is_compression_enabled:
+                                description:
+                                    - Indicates whether content compression is enabled on AzureFrontDoor. If compression is enabled, content will be served as compressed if user requests for a compressed version. Content won't be compressed on AzureFrontDoor when requested content is smaller than 1 byte or larger than 1 MB.
+                                type: bool
+            custom_domains:
+                description:
+                    - Domain id's referenced by this endpoint.
+                type: list
+            enabled_state:
+                description:
+                    - Whether to enable use of this rule. Permitted values are 'Enabled' or 'Disabled'. Known values are: "Enabled" and "Disabled".
+                type: str
+            forwarding_protocol:
+                description:
+                    - Protocol this rule will use when forwarding traffic to backends. Known values are: "HttpOnly", "HttpsOnly", and "MatchRequest".
+                type: str
+            https_redirect:
+                description:
+                    - Whether to automatically redirect HTTP traffic to HTTPS traffic. Note that this is a easy way to set up this rule and it will be the first rule that gets executed. Known values are: "Enabled" and "Disabled".
+                type: str
+            link_to_default_domain:
+                description:
+                    - whether this route will be linked to the default endpoint domain. Known values are: "Enabled" and "Disabled".
+                type: str
+            origin_group:
+                description:
+                    - The origin group name.
+                type: str
+            origin_path:
+                description:
+                    - A directory path on the origin that AzureFrontDoor can use to retrieve content from, e.g. contoso.cloudapp.net/originpath.
+                type: str
+            patterns_to_match:
+                description:
+                    - The route patterns of the rule.
+                type: list
+            rule_sets:
+                description:
+                    - List of rule set names referenced by this endpoint.
+                type: list
+            supported_protocols:
+                description:
+                    - List of supported protocols for this route.
+                type: list
     state:
         description:
-            - Assert the state of the CDN profile. Use C(present) to create or update a CDN profile and C(absent) to delete it.
+            - Assert the state of the Route. Use C(present) to create or update a CDN profile and C(absent) to delete it.
         default: present
         type: str
         choices:
@@ -51,91 +124,57 @@ author:
 '''
 
 EXAMPLES = '''
+- name: Create an AFD Route
+  azure_rm_afdroute:
+    name: myRoute
+    endpoint_name: myEndpoint
+    profile_name: myProfile
+    resource_group_name: myResourceGroup
+    state: present
+    route:
+        enabled_state: Disabled
+        forwarding_protocol: HttpsOnly
+        https_redirect: Enabled
+        origin_group_name: myOriginGroup
+        patterns_to_match:
+            - "/*"
+        rule_sets:
+            - Security
+        supported_protocols:
+            - Https
+            - Http
+        link_to_default_domain: Enabled
 
+- name: Delete an AFD Origin
+  azure_rm_afdroute:
+    name: myRoute
+    endpoint_name: myEndpoint
+    profile_name: myProfile
+    resource_group_name: myResourceGroup
+    state: absent
 '''
 RETURN = '''
-additional_latency_in_milliseconds:
-    description: 
-    returned: 
-    type: int
-    example:
-deployment_status:
-    description: 
-    returned: 
-    type: 
-    example:
 id:
-    description: 
-    returned: 
+    description:
+        - ID of the Route.
+    returned: always
     type: str
-    example:
-name:
-    description: 
-    returned: 
-    type: str
-    example:
-probe_interval_in_seconds:
-    description: 
-    returned: 
-    type: int
-    example:
-probe_path:
-    description: 
-    returned: 
-    type: str
-    example:
-probe_protocol:
-    description: 
-    returned: 
-    type: str
-    example:
-probe_request_type:
-    description: 
-    returned: 
-    type: str
-    example:
-provisioning_state:
-    description: 
-    returned: 
-    type: str
-    example:
-sample_size:
-    description: 
-    returned: 
-    type: int
-    example:
-session_affinity_state:
-    description: 
-    returned: 
-    type: str
-    example:
-successful_samples_required:
-    description: 
-    returned: 
-    type: int
-    example:
-traffic_restoration_time_to_healed_or_new_endpoints_in_minutes:
-    description: 
-    returned: 
-    type: int
-    example:
-type:
-    description: 
-    returned: 
-    type: str
-    example:
+    sample: "id: '/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourcegroups/myResourcegroup/providers/Microsoft.Cdn/profiles/myProfile/afdendpoints/myEndPoint/routes/myRoute'"
 '''
 from ansible_collections.azure.azcollection.plugins.module_utils.azure_rm_common import AzureRMModuleBase
 
 try:
-    from azure.mgmt.cdn.models import Route, RouteProperties, RouteUpdateParameters, CompressionSettings, ResourceReference
+    from azure.mgmt.cdn.models import Route, RouteProperties, RouteUpdateParameters, CompressionSettings, ResourceReference, CacheConfiguration, AfdRouteCacheConfiguration
     from azure.mgmt.cdn import CdnManagementClient
+
 except ImportError as ec:
     # This is handled in azure_rm_common
     pass
 
 def route_to_dict(route):
     return dict(
+        custom_domains=route.custom_domains,
+        cache_configuration=route.cache_configuration,
         deployment_status=route.deployment_status,
         enabled_state = route.enabled_state,
         forwarding_protocol = route.forwarding_protocol,
@@ -147,7 +186,6 @@ def route_to_dict(route):
         origin_path=route.origin_path,
         patterns_to_match=route.patterns_to_match,
         provisioning_state=route.provisioning_state,
-        query_string_caching_behavior=route.query_string_caching_behavior,
         rule_sets=route.rule_sets,
         supported_protocols=route.supported_protocols,
         type=route.type
@@ -157,64 +195,13 @@ class AzureRMRoute(AzureRMModuleBase):
 
     def __init__(self):
         self.module_arg_spec = dict(
-            content_types_to_compress=dict(
-                type='list',
-                elements='raw',
-                required=False
-            ),
-            custom_domains=dict(
-                type='list',
-                elements='dict',
-                options=dict(
-                    id=dict(type='str'),
-                    is_active=dict(type='bool'),
-                    resource_group=dict(type='str')
-                ),
-                required=False
-            ),
-            enabled_state=dict(
-                type='str',
-                required=False
-            ),
             endpoint_name=dict(
                 type='str',
                 required=True
             ),
-            forwarding_protocol=dict(
-                type='str',
-                choices=['HttpOnly', 'HttpsOnly', 'MatchRequest'],
-                required=False
-            ),
-            https_redirect=dict(
-                type='str',
-                choices=['Enabled', 'Disabled'],
-                required=False
-            ),
-            is_compression_enabled=dict(
-                type='bool',
-                required=False
-            ),
-            link_to_default_domain=dict(
-                type='str',
-                choices=['Enabled', 'Disabled'],
-                required=False
-            ),
             name=dict(
                 type='str',
                 required=True
-            ),
-            origin_group_name=dict(
-                type='str',
-                required=True
-            ),
-            origin_path=dict(
-                type='str',
-                required=False
-            ),
-            patterns_to_match=dict(
-                type='list',
-                elements='raw',
-                required=False
             ),
             profile_name=dict(
                 type='str',
@@ -224,43 +211,84 @@ class AzureRMRoute(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            rule_sets=dict(
-                type='list',
-                elements='dict',
+            route=dict(
+                type='dict',
                 options=dict(
-                    name=dict(type='str', required=False)
-                ),
-                required=False
+                    custom_domains=dict(
+                        type='list',
+                        elements='dict',
+                        options=dict(
+                            id=dict(type='str'),
+                            is_active=dict(type='bool'),
+                            resource_group=dict(type='str')
+                        ),
+                        required=False
+                    ),
+                    origin_group=dict(
+                        type='str',
+                        required=True
+                    ),
+                    origin_path=dict(
+                        type='str'
+                    ),
+                    rule_sets=dict(
+                        type='list',
+                        elements='str'
+                    ),
+                    supported_protocols=dict(
+                        type='list',
+                        choices=['Http', 'Https']
+                    ),
+                    patterns_to_match=dict(
+                        type='list',
+                        elements='raw'
+                    ),
+                    cache_configuration=dict(
+                        type='dict',
+                        options=dict(
+                            query_string_caching_behavior=dict(type='str', choices=['IGNORE_QUERY_STRING', 'IGNORE_SPECIFIED_QUERY_STRINGS', 'INCLUDE_SPECIFIED_QUERY_STRINGS', 'USE_QUERY_STRING']),
+                            query_parameters=dict(type='str'),
+                            compression_settings=dict(
+                                type='dict',
+                                options=dict(
+                                    content_types_to_compress=dict(type='list',elements='str',required=False),
+                                    is_compression_enabled=dict(type='bool',required=False),
+                                )
+                            )
+                        )
+                    ),
+                    forwarding_protocol=dict(
+                        type='str',
+                        choices=['HttpOnly', 'HttpsOnly', 'MatchRequest']
+                    ),
+                    link_to_default_domain=dict(
+                        type='str',
+                        choices=['Enabled', 'Disabled'],
+                        default='Disabled'
+                    ),
+                    https_redirect=dict(
+                        type='str',
+                        choices=['Enabled', 'Disabled'],
+                        default='Disabled'
+                    ),
+                    enabled_state=dict(
+                        type='str',
+                        choices=['Enabled', 'Disabled']
+                    )
+                )
             ),
             state=dict(
                 type='str',
                 default='present',
-                choices=['present', 'absent'],
-                required=False
-            ),
-            supported_protocols=dict(
-                type='list',
-                choices=['Http', 'Https'],
-                required=False
+                choices=['present', 'absent']
             )
         )
 
-        self.content_types_to_compress = None
-        self.custom_domains = None
-        self.enabled_state = None
-        self.endpoint_name = None
-        self.forwarding_protocol = None
-        self.https_redirect = None
-        self.link_to_default_domain = None
-        self.is_compression_enabled = None
-        self.origin_path = None
-        self.patterns_to_match = None
-        self.rule_sets = None
-        self.rule_set_ids = None
-        self.supported_protocols = None
+        self.route = None
+        self.origin_group_id = None
 
         self.name = None
-        self.origin_group_name = None
+        self.endpoint_name = None
         self.profile_name = None
         self.resource_group = None
         self.state = None
@@ -299,7 +327,7 @@ class AzureRMRoute(AzureRMModuleBase):
         # Get the Origin Group ID
         self.origin_group_id = self.get_origin_group_id()
         if self.origin_group_id is False:
-            self.fail("Could not obtain Origin Group ID from {0}".format(self.origin_group_name))
+            self.fail("Could not obtain Origin Group ID from {0}".format(self.origin_group))
         
         # Populate the rule_set_ids
         convert_rules = self.get_rule_set_ids()
@@ -319,25 +347,48 @@ class AzureRMRoute(AzureRMModuleBase):
             else:
                 self.log('Results : {0}'.format(response))
                 
-                if response['enabled_state'] != self.enabled_state and self.enabled_state:
+                # TODO: Disabling cache_configuration does not currently work with the SDK, see https://github.com/Azure/azure-sdk-for-python/issues/35801
+                if response['cache_configuration'] and not self.route['cache_configuration']:
+                        to_be_updated = True
+                elif not response['cache_configuration'] and self.route['cache_configuration']:
+                        to_be_updated = True
+                elif response['cache_configuration'] and self.route['cache_configuration']:
+                    if response['cache_configuration']['compression_settings'] and not self.route['cache_configuration']['compression_settings']:
+                        to_be_updated = True
+                    elif not response['cache_configuration']['compression_settings'] and self.route['cache_configuration']['compression_settings']:
+                        to_be_updated = True
+                    elif response['cache_configuration']['compression_settings'] and self.route['cache_configuration']['compression_settings']:
+                        if response['cache_configuration']['compression_settings']['is_compression_enabled'] != self.route['cache_configuration']['compression_settings']['is_compression_enabled']:
+                            to_be_updated = True
+                        if response['cache_configuration']['compression_settings']['content_types_to_compress'] != self.route['cache_configuration']['compression_settings']['content_types_to_compress']:
+                            to_be_updated = True
+                    if response['cache_configuration']['query_parameters'] != self.route['cache_configuration']['query_parameters']:
+                        to_be_updated = True
+                    if response['cache_configuration']['query_string_caching_behavior'] != self.route['cache_configuration']['query_string_caching_behavior']:
+                        to_be_updated = True
+
+                if response['custom_domains'] != self.route['custom_domains'] and self.route['custom_domains']:
                     to_be_updated = True
-                if response["forwarding_protocol"] != self.forwarding_protocol and self.forwarding_protocol:
+                if response['enabled_state'] != self.route['enabled_state'] and self.route['enabled_state']:
                     to_be_updated = True
-                if response["https_redirect"] != self.https_redirect and self.https_redirect:
+                if response['forwarding_protocol'] != self.route['forwarding_protocol'] and self.route['forwarding_protocol']:
                     to_be_updated = True
-                if response["link_to_default_domain"] != self.link_to_default_domain and self.link_to_default_domain:
+                if response['https_redirect'] != self.route['https_redirect'] and self.route['https_redirect']:
                     to_be_updated = True
-                if response["origin_group_id"] != self.origin_group_id and self.origin_group_id:
+                if response['link_to_default_domain'] != self.route['link_to_default_domain'] and self.route['link_to_default_domain']:
                     to_be_updated = True
-                if response["origin_path"] != self.origin_path and self.origin_path:
+                if response['origin_group_id'] != self.origin_group_id and self.origin_group_id:
                     to_be_updated = True
-                if response["patterns_to_match"] != self.patterns_to_match and self.patterns_to_match:
+                if response['origin_path'] != self.route['origin_path'] and self.route['origin_path']:
+                    to_be_updated = True
+                if response['patterns_to_match'] != self.route['patterns_to_match'] and self.route['patterns_to_match']:
                     to_be_updated = True
                 if response["rule_sets"] != self.rule_set_ids and self.rule_set_ids:
                     to_be_updated = True
-                if response["supported_protocols"] != self.supported_protocols and self.supported_protocols:
+                if response['supported_protocols'] != self.route['supported_protocols'] and self.route['supported_protocols']:
                     to_be_updated = True
 
+                self.results['id'] = response['id']
                 if to_be_updated:
                     self.log("Need to update the Route")
 
@@ -350,6 +401,7 @@ class AzureRMRoute(AzureRMModuleBase):
         elif self.state == 'absent':
             if not response:
                 self.log("Route {0} does not exist.".format(self.name))
+                self.results['id'] = None
                 self.results['changed'] = False
             else:
                 self.log("Need to delete the Route")
@@ -358,7 +410,6 @@ class AzureRMRoute(AzureRMModuleBase):
                 if not self.check_mode:
                     self.delete_route()
                     self.results['id'] = response['id']
-
         return self.results
 
     def create_route(self):
@@ -368,28 +419,37 @@ class AzureRMRoute(AzureRMModuleBase):
         :return: deserialized Azure Route instance state dictionary
         '''
         self.log("Creating the Azure Route instance {0}".format(self.name))
-        
-        compression_settings = CompressionSettings(
-            content_types_to_compress=self.content_types_to_compress,
-            is_compression_enabled=self.is_compression_enabled
-        )
+        cache_configuration = None
+        if self.route['cache_configuration']:
+            compression_settings =  None
+            if self.route['cache_configuration']['compression_settings']:
+                compression_settings = CompressionSettings(
+                    content_types_to_compress=self.route['cache_configuration']['content_types_to_compress'],
+                    is_compression_enabled=self.route['cache_configuration']['is_compression_enabled']
+                )
+            cache_configuration = AfdRouteCacheConfiguration(
+                query_string_caching_behavior=self.route['cache_configuration']['query_string_caching_behavior'],
+                query_parameters=self.route['cache_configuration']['query_parameters'],
+                compression_settings=compression_settings
+            )
+
 
         origin_group = ResourceReference(
             id=self.origin_group_id
         )
 
         parameters = Route(
-            compression_settings=compression_settings,
-            custom_domains=self.custom_domains,
-            enabled_state=self.enabled_state,
-            forwarding_protocol=self.forwarding_protocol,
-            https_redirect=self.https_redirect,
-            link_to_default_domain=self.link_to_default_domain,
+            cache_configuration=cache_configuration,
+            custom_domains=self.route['custom_domains'],
+            enabled_state=self.route['enabled_state'],
+            forwarding_protocol=self.route['forwarding_protocol'],
+            https_redirect=self.route['https_redirect'],
+            link_to_default_domain=self.route['link_to_default_domain'],
             origin_group=origin_group,
-            origin_path=self.origin_path,
-            patterns_to_match=self.patterns_to_match,
+            origin_path=self.route['origin_path'],
+            patterns_to_match=self.route['patterns_to_match'],
             rule_sets=self.rule_set_ids,
-            supported_protocols=self.supported_protocols
+            supported_protocols=self.route['supported_protocols']
         )
             
         try:
@@ -415,24 +475,32 @@ class AzureRMRoute(AzureRMModuleBase):
             id=self.origin_group_id
         )
 
-        compression_settings = CompressionSettings(
-            content_types_to_compress=self.content_types_to_compress,
-            is_compression_enabled=self.is_compression_enabled
-        )
+        cache_configuration = None
+        if self.route['cache_configuration']:
+            compression_settings =  None
+            if self.route['cache_configuration']['compression_settings']:
+                compression_settings = CompressionSettings(
+                    content_types_to_compress=self.route['cache_configuration']['content_types_to_compress'],
+                    is_compression_enabled=self.route['cache_configuration']['is_compression_enabled']
+                )
+            cache_configuration = AfdRouteCacheConfiguration(
+                query_string_caching_behavior=self.route['cache_configuration']['query_string_caching_behavior'],
+                query_parameters=self.route['cache_configuration']['query_parameters'],
+                compression_settings=compression_settings
+            )
 
-        # TODO: Add query_string_caching_behavior: str | AfdQueryStringCachingBehavior | None = None
         parameters = RouteUpdateParameters(
-            compression_settings=compression_settings,
-            custom_domains=self.custom_domains,
-            enabled_state=self.enabled_state,
-            forwarding_protocol=self.forwarding_protocol,
-            https_redirect=self.https_redirect,
-            link_to_default_domain=self.link_to_default_domain,
+            cache_configuration=cache_configuration,
+            custom_domains=self.route['custom_domains'],
+            enabled_state=self.route['enabled_state'],
+            forwarding_protocol=self.route['forwarding_protocol'],
+            https_redirect=self.route['https_redirect'],
+            link_to_default_domain=self.route['link_to_default_domain'],
             origin_group=origin_group,
-            origin_path=self.origin_path,
-            patterns_to_match=self.patterns_to_match,
+            origin_path=self.route['origin_path'],
+            patterns_to_match=self.route['patterns_to_match'],
             rule_sets=self.rule_set_ids,
-            supported_protocols=self.supported_protocols
+            supported_protocols=self.route['supported_protocols']
         )
 
         try:
@@ -488,9 +556,9 @@ class AzureRMRoute(AzureRMModuleBase):
         :return: ID for the Origin Group.
         '''
         self.log(
-            "Obtaining ID for Origin Group {0}".format(self.origin_group_name))
+            "Obtaining ID for Origin Group {0}".format(self.route['origin_group']))
         try:
-            response = self.route_client.afd_origin_groups.get(self.resource_group, self.profile_name, self.origin_group_name)
+            response = self.route_client.afd_origin_groups.get(resource_group_name=self.resource_group, profile_name=self.profile_name, origin_group_name=self.route['origin_group'])
             self.log("Response : {0}".format(response))
             self.log("Origin Group ID found : {0} found".format(response.id))
             return response.id
@@ -504,17 +572,17 @@ class AzureRMRoute(AzureRMModuleBase):
 
         :return: Boolean if Rule Sets were found and translated.
         '''
-        if self.rule_sets is None or len(self.rule_sets) == 0:
+        if self.route['rule_sets'] is None or len(self.route['rule_sets']) == 0:
             return True
         
         self.log("Obtaining IDs for Rule Sets")
         self.rule_set_ids = []
         try:
-            for rule_name in self.rule_sets:
+            for rule_name in self.route['rule_sets']:
                 response = self.route_client.rule_sets.get(
                     resource_group_name=self.resource_group,
                     profile_name=self.profile_name,
-                    rule_set_name=rule_name['name'],
+                    rule_set_name=rule_name,
                 )
                 self.log("Response : {0}".format(response))
                 self.log("Rule Set ID found : {0} found".format(response.id))
@@ -539,9 +607,8 @@ class AzureRMRoute(AzureRMModuleBase):
 def main():
     """Main execution"""
     AzureRMRoute()
-    # TODO: Clean this up
-    x = CdnManagementClient()
-    x.routes.begin_delete()
+    # x = CdnManagementClient()
+    # x.routes.begin_update()
 
 if __name__ == '__main__':
     main()

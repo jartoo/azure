@@ -14,24 +14,133 @@ description:
     - Create, update and delete an Azure Front Door Rules to be used by a Front Door Service Profile created using azure_rm_cdnprofile.
 
 options:
-    resource_group:
-        description:
-            - Name of a resource group where the CDN front door rules exists or will be created.
-        required: true
-        type: str
     name:
         description:
-            - Name of the Front Door Rules.
+            - Name of the delivery rule which is unique within the endpoint.
         required: true
         type: str
     profile_name:
         description:
-            - Name of the Front Door Profile.
+            - Name of the Azure Front Door Standard or Azure Front Door Premium profile which is unique within the resource group.
         required: true
         type: str
-    location:
+    resource_group:
         description:
-            - Valid Azure location. Defaults to location of the resource group.
+            - Name of the Resource group within the Azure subscription.
+        required: true
+        type: str
+    rule:
+        description:
+            - The delivery rule properties.
+        type: dict
+        suboptions:
+            order:
+                description:
+                    - The order in which the rules are applied for the endpoint. Possible values {0,1,2,3,.........}. A rule with a lesser order will be applied before a rule with a greater order. Rule with order 0 is a special rule. It does not require any condition and actions listed in it will always be applied.
+                type: int
+            conditions:
+                description:
+                    - A list of conditions that must be matched for the actions to be executed.
+                type: list
+                suboptions:
+                    name:
+                        description:
+                            - The name of the condition for the delivery rule.
+                        type: int
+                        choices:
+                            - ClientPort
+                            - Cookies
+                            - HostName
+                            - HttpVersion
+                            - IsDevice
+                            - PostArgs
+                            - QueryString
+                            - RemoteAddress
+                            - RequestBody
+                            - RequestHeader
+                            - RequestMethod
+                            - RequestScheme
+                            - RequestUri
+                            - ServerPort
+                            - SocketAddr
+                            - SslProtocol
+                            - UrlFileExtension
+                            - UrlFileName
+                            - UrlPath
+                    type_name:
+                        description:
+                            - The name of the condition for the delivery rule.
+                        required: True
+                        type: str
+                        choices:
+                            - DeliveryRuleClientPortConditionParameters
+                            - DeliveryRuleCookiesConditionParameters
+                            - DeliveryRuleHostNameConditionParameters
+                            - DeliveryRuleHttpVersionConditionParameters
+                            - DeliveryRuleIsDeviceConditionParameters
+                            - DeliveryRulePostArgsConditionParameters
+                            - DeliveryRuleQueryStringConditionParameters
+                    operator:
+                        description:
+                            - Describes operator to be matched.
+                        type: int
+                        required: True
+                        choices:
+                            - Any
+                            - Equal
+                            - Contains
+                            - BeginsWith
+                            - EndsWith
+                            - LessThan
+                            - LessThanOrEqual
+                            - GreaterThan
+                            - GreaterThanOrEqual
+                            - RegEx
+                    negate_condition:
+                        description:
+                            - Describes if this is a negate condition or not.
+                        type: bool
+                    match_values:
+                        description:
+                            - The match value for the condition of the delivery rule.
+                        type: list
+                    selector:
+                        description:
+                            - Name of item to be matched.
+                        type: str
+                    transforms:
+                        description:
+                            - List of transforms.
+                        type: list
+                        choices:
+                            - Lowercase
+                            - RemoveNulls
+                            - Trim
+                            - Uppercase
+                            - URLDecode
+                            - URLEncode
+            actions:
+                description:
+                    - A list of actions that are executed when all the conditions of a rule are satisfied.
+                required: True
+                type: list
+                suboptions:
+                    name:
+                        description:
+                            - The name of the condition for the delivery rule.
+                        type: int
+            match_processing_behavior:
+                description:
+                    - If this rule is a match should the rules engine continue running the remaining rules or stop.
+                default: Continue
+                type: str
+                choices:
+                    - Continue
+                    - Stop
+                
+    rule_set_name:
+        description:
+            - Name of the rule set under the profile.
         required: true
         type: str
     state:
@@ -148,6 +257,7 @@ def rules_to_dict(rules):
         name = rules.name,
         order=rules.order,
         provisioning_state = rules.provisioning_state,
+        rule_set_name = rules.rule_set_name,
         type=rules.type
     )
 
@@ -238,7 +348,7 @@ class AzureRMRules(AzureRMModuleBase):
         if self.state == 'present':
 
             if not response:
-                self.log("Need to create the Rules")
+                self.log("Need to create the Rule")
 
                 if not self.check_mode:
                     new_response = self.create_rules()
@@ -251,9 +361,9 @@ class AzureRMRules(AzureRMModuleBase):
 
         elif self.state == 'absent':
             if not response:
-                self.fail("Rules {0} does not exist.".format(self.name))
+                self.fail("Rule {0} does not exist.".format(self.name))
             else:
-                self.log("Need to delete the Rules")
+                self.log("Need to delete the Rule")
                 self.results['changed'] = True
 
                 if not self.check_mode:

@@ -1,13 +1,13 @@
 {
     "ANSIBLE_MODULE_ARGS": {
-      "name": "allstars-dev-frontend3",
+      "name": "allstars-dev-frontend-jpt",
       "profile_name": "allstars-dev-fd-jpt",
       "resource_group": "aaa-id-for-testing-aaa-rg",
       "subscription_id": "f5c96a5a-b3f6-470f-8a0c-817cf3833928",
       "enabled_state": "Enabled",
       "tags": {
-        "test": "Joe2"
+        "Erik": "Brown"
       },
-      "state": "absent"
+      "state": "present"
     }
 }

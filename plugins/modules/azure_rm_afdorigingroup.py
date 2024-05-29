@@ -106,7 +106,7 @@ author:
 
 EXAMPLES = '''
 - name: Create an AFD OriginGroup
-  azure_rm_afdendpoint:
+  azure_rm_afdorigingroup:
     name: myOriginGroup
     profile_name: myProfile
     resource_group: myResourceGroup
@@ -115,7 +115,7 @@ EXAMPLES = '''
       testing: testing
 
 - name: Delete the AFD OriginGroup
-  azure_rm_afdendpoint:
+  azure_rm_afdorigingroup:
     name: myOriginGroup
     profile_name: myProfile
     resource_group: myResourceGroup
@@ -414,9 +414,6 @@ class AzureRMOriginGroup(AzureRMModuleBase):
 def main():
     """Main execution"""
     AzureRMOriginGroup()
-    # x = CdnManagementClient()
-    # x.afd_origin_groups.
-    # y = AFDOriginGroup()
 
 if __name__ == '__main__':
     main()

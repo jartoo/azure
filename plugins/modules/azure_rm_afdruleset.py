@@ -232,7 +232,7 @@ class AzureRMRuleSet(AzureRMModuleBase):
         self.log("Creating the Azure Rule Set instance {0}".format(self.name))
 
         try:
-            poller = self.ruleset_client.rule_sets.begin_create(
+            poller = self.ruleset_client.rule_sets.create(
                 resource_group_name=self.resource_group,
                 profile_name=self.profile_name,
                 rule_set_name=self.name
@@ -291,9 +291,6 @@ class AzureRMRuleSet(AzureRMModuleBase):
 def main():
     """Main execution"""
     AzureRMRuleSet()
-    # x = CdnManagementClient()
-    # x.rule_sets.begin_create()
-    # y = AFDRuleSet()
 
 if __name__ == '__main__':
     main()

@@ -59,7 +59,7 @@ options:
                 type: int
             shared_private_link_resource:
                 description:
-                    - The number of samples within the sample period that must succeed.
+                    - The properties of the private link resource for private origin.
                 type: dict
                 suboptions:
                     group_id:
@@ -124,6 +124,28 @@ author:
 '''
 
 EXAMPLES = '''
+- name: Create an AFD Origin
+  azure_rm_afdorigin:
+    name: myOrigin
+    origin_group_name: myOriginGroup
+    profile_name: myProfile
+    resource_group_name: myResourceGroup
+    state: present
+    origin:
+        host_name: "10.0.0.1"
+        origin_host_header: "10.0.0.1"
+        http_port: 80
+        https_port: 443
+        priority: 1
+        weight: 1000
+
+- name: Delete an AFD Origin
+  azure_rm_afdorigin:
+    name: myOrigin
+    origin_group_name: myOriginGroup
+    profile_name: myProfile
+    resource_group_name: myResourceGroup
+    state: absent
 
 '''
 RETURN = '''
@@ -184,7 +206,7 @@ class AzureRMOrigin(AzureRMModuleBase):
                 options=dict(
                     azure_origin=dict(type='str'),
                     enabled_state=dict(type='str'),
-                    enforce_certification_name_check=dict(type='bool'),
+                    # enforce_certification_name_check=dict(type='bool'),
                     host_name=dict(type='str'),
                     http_port=dict(type='int',default=80),
                     https_port=dict(type='int',default=443),
@@ -396,7 +418,6 @@ class AzureRMOrigin(AzureRMModuleBase):
             enabled_state=self.origin['enabled_state'],
             shared_private_link_resource=shared_private_link_resource
         )
-# enforce_certificate_name_check
         
         try:
             poller = self.origin_client.afd_origins.begin_update(resource_group_name=self.resource_group_name,
@@ -460,9 +481,6 @@ class AzureRMOrigin(AzureRMModuleBase):
 def main():
     """Main execution"""
     AzureRMOrigin()
-    # x = CdnManagementClient()
-    # x.afd_origins.begin_create()
-    # y = AFDOrigin()
 
 if __name__ == '__main__':
     main()

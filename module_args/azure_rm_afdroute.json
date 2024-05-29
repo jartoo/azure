@@ -1,17 +1,20 @@
 {
     "ANSIBLE_MODULE_ARGS": {
       "name": "webapp-route",
-      "endpoint_name": "allstars-dev-frontend",
-      "origin_group_name": "webapp-group",
+      "endpoint_name": "allstars-dev-frontend-jpt",
       "profile_name": "allstars-dev-fd-jpt",
       "resource_group": "aaa-id-for-testing-aaa-rg",
-      "subscription_id": "f5c96a5a-b3f6-470f-8a0c-817cf3833928",
       "state": "present",
-      "forwarding_protocol": "HttpsOnly",
-      "https_redirect": "Enabled",
-      "patterns_to_match": ["/*"],
-      "rule_sets": [{"name": "Security"}],
-      "supported_protocols": ["Https","Http"],
-      "link_to_default_domain": "Enabled"
+      "subscription_id": "f5c96a5a-b3f6-470f-8a0c-817cf3833928",
+      "route": {
+        "enabled_state": "Enabled",
+        "origin_group": "webapp-group",
+        "forwarding_protocol": "HttpsOnly",
+        "https_redirect": "Disabled",
+        "patterns_to_match": ["/test/*"],
+        "rule_sets": ["Security"],
+        "supported_protocols": ["Https"],
+        "link_to_default_domain": "Enabled"
+      }
     }
 }

@@ -4,7 +4,8 @@
 #
 # Python SDK Reference: https://learn.microsoft.com/en-us/python/api/azure-mgmt-cdn/azure.mgmt.cdn.operations.afdendpointsoperations?view=azure-python
 #
-
+# TODO: Name check the URL
+# 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
