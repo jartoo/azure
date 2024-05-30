@@ -1,13 +1,16 @@
 #!/usr/bin/python
 #
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+#
+# Python SDK Reference: https://learn.microsoft.com/en-us/python/api/azure-mgmt-cdn/azure.mgmt.cdn.operations.policiesoperations?view=azure-python
+#
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 DOCUMENTATION = '''
 ---
-module: azure_rm_afdwafpolicy
+module: azure_rm_wafpolicy
 version_added: "0.1.0"
 short_description: Manage an Azure Front Door WAF Policy
 description:
@@ -26,7 +29,7 @@ options:
         type: str
     profile_name:
         description:
-            - Name of the Front Door Profile.
+            - Name of the Azure Front Door Profile.
         required: true
         type: str
     location:
@@ -34,6 +37,15 @@ options:
             - Valid Azure location. Defaults to location of the resource group.
         required: true
         type: str
+    sku:
+        description:
+            - The pricing tier (defines a CDN provider, feature list and rate) of the Policy.
+        required: true
+        type: str
+    tags:
+        description:
+            - Valid Azure location. Defaults to location of the resource group.
+        type: list
     state:
         description:
             - Assert the state of the CDN profile. Use C(present) to create or update a CDN profile and C(absent) to delete it.
@@ -54,72 +66,7 @@ EXAMPLES = '''
 
 '''
 RETURN = '''
-additional_latency_in_milliseconds:
-    description: 
-    returned: 
-    type: int
-    example:
-deployment_status:
-    description: 
-    returned: 
-    type: 
-    example:
 id:
-    description: 
-    returned: 
-    type: str
-    example:
-name:
-    description: 
-    returned: 
-    type: str
-    example:
-probe_interval_in_seconds:
-    description: 
-    returned: 
-    type: int
-    example:
-probe_path:
-    description: 
-    returned: 
-    type: str
-    example:
-probe_protocol:
-    description: 
-    returned: 
-    type: str
-    example:
-probe_request_type:
-    description: 
-    returned: 
-    type: str
-    example:
-provisioning_state:
-    description: 
-    returned: 
-    type: str
-    example:
-sample_size:
-    description: 
-    returned: 
-    type: int
-    example:
-session_affinity_state:
-    description: 
-    returned: 
-    type: str
-    example:
-successful_samples_required:
-    description: 
-    returned: 
-    type: int
-    example:
-traffic_restoration_time_to_healed_or_new_endpoints_in_minutes:
-    description: 
-    returned: 
-    type: int
-    example:
-type:
     description: 
     returned: 
     type: str
@@ -130,8 +77,6 @@ from ansible_collections.azure.azcollection.plugins.module_utils.azure_rm_common
 try:
     from azure.mgmt.cdn.models import CdnWebApplicationFirewallPolicy, PolicySettings, RateLimitRuleList, RateLimitRule, CustomRuleList, ManagedRuleSetList
     from azure.mgmt.cdn import CdnManagementClient
-
-# https://learn.microsoft.com/en-us/python/api/azure-mgmt-cdn/azure.mgmt.cdn.operations.policiesoperations?view=azure-python
 
 except ImportError as ec:
     # This is handled in azure_rm_common
@@ -160,106 +105,135 @@ class AzureRMWAFPolicy(AzureRMModuleBase):
 
     def __init__(self):
         self.module_arg_spec = dict(
-            content_types_to_compress=dict(
-                type='list',
-                elements='raw',
-                required=False
-            ),
-            custom_domains=dict(
-                type='list',
-                elements='dict',
+            custom_rules=dict(
+                type='dict',
                 options=dict(
-                    id=dict(type='str'),
-                    is_active=dict(type='bool')
-                ),
-                required=False
+                    rules=dict(
+                        type='list',
+                        options=dict(
+                            name=dict(type='str'),
+                            enabled_state=dict(type='str',choices=['Enabled', 'Disabled']),
+                            priority=dict(type='int'),
+                            match_conditions=dict(
+                                type='list',
+                                options=dict(
+                                    match_variable=dict(type='str',choices=["RemoteAddr", "SocketAddr", "RequestMethod", "RequestHeader", "RequestUri", "QueryString", "RequestBody", "Cookies", "PostArgs"]),
+                                    selector=dict(type='str'),
+                                    operator=dict(type='str', choices=["Any", "IPMatch", "GeoMatch", "Equal", "Contains", "LessThan", "GreaterThan", "LessThanOrEqual", "GreaterThanOrEqual", "BeginsWith", "EndsWith", "RegEx"]),
+                                    negate_condition=dict(type='bool'),
+                                    match_value=dict(type='list'),
+                                    transforms=dict(type='list')
+                                )
+                            ),
+                            action=dict(type='str', choices=["Allow", "Block", "Log", "Redirect"])
+                        )
+                    )
+                )
             ),
-            enabled_state=dict(
-                type='str',
-                required=False
-            ),
-            endpoint_name=dict(
+            location=dict(
                 type='str',
                 required=True
             ),
-            forwarding_protocol=dict(
-                type='str',
-                choices=['HttpOnly', 'HpptsOnly', 'MatchRequest'],
-                required=False
-            ),
-            https_redirect=dict(
-                type='str',
-                choices=['Enabled', 'Disabled'],
-                required=False
-            ),
-            is_compression_enabled=dict(
-                type='bool',
-                required=False
-            ),
-            link_to_default_domain=dict(
-                type='str',
-                choices=['Enabled', 'Disabled'],
-                required=False
+            managed_rules=dict(
+                type='dict',
+                options=dict(
+                    managed_rule_sets=dict(
+                        type='list',
+                        options=dict(
+                            rule_set_type=dict(type='str'),
+                            rule_set_version=dict(type='str'),
+                            anomaly_score=dict(type='int'),
+                            rule_group_overrides=dict(
+                                type='list',
+                                options=dict(
+                                    rule_group_name=dict(type='str'),
+                                    rules=dict(
+                                        type='list',
+                                        options=dict(
+                                            rule_id=dict(type='int'),
+                                            enabled_state=dict(type='str', choices=["Enabled, Disabled"]),
+                                            action=dict(type='str', choices=["Allow", "Block", "Log", "Redirect"])
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
             ),
             name=dict(
                 type='str',
                 required=True
             ),
-            origin_group_name=dict(
-                type='str',
-                required=True
+            policy_settings=dict(
+                type='dict',
+                options=dict(
+                    enabled_state=dict(type='str',choices=['Enabled','Disabled']),
+                    mode=dict(type='str',choices=['Detection','Prevention']),
+                    default_redirect_url=dict(type='str'),
+                    default_custom_block_response_status_code=dict(type='int',choices=[200,403,405,406,429]),
+                    default_custom_block_response_body=dict(type='str')
+                )
             ),
-            origin_path=dict(
-                type='str',
-                required=False
-            ),
-            patterns_to_match=dict(
+            rate_limit_rules=dict(
                 type='list',
-                elements='raw',
-                required=False
-            ),
-            profile_name=dict(
-                type='str',
-                required=True
+                elements='dict',
+                options=dict(
+                    rules=dict(
+                        type='list',
+                        options=dict(
+                            name=dict(type='str'),
+                            enabled_state=dict(type='str',choices=['Enabled', 'Disabled']),
+                            priority=dict(type='int'),
+                            match_conditions=dict(
+                                type='list',
+                                options=dict(
+                                    match_variable=dict(type='str',choices=["RemoteAddr", "SocketAddr", "RequestMethod", "RequestHeader", "RequestUri", "QueryString", "RequestBody", "Cookies", "PostArgs"]),
+                                    selector=dict(type='str'),
+                                    operator=dict(type='str', choices=["Any", "IPMatch", "GeoMatch", "Equal", "Contains", "LessThan", "GreaterThan", "LessThanOrEqual", "GreaterThanOrEqual", "BeginsWith", "EndsWith", "RegEx"]),
+                                    negate_condition=dict(type='bool'),
+                                    match_value=dict(type='list'),
+                                    transforms=dict(type='list')
+                                )
+                            ),
+                            action=dict(type='str', choices=["Allow", "Block", "Log", "Redirect"]),
+                            rate_limit_threshold=dict(type='int'),
+                            rate_limit_duration_in_minutes=dict(type='int')
+                        )
+                    )
+                )
             ),
             resource_group=dict(
                 type='str',
                 required=True
             ),
-            rule_sets=dict(
-                type='list',
-                elements='dict',
-                options=dict(
-                    name=dict(type='str', required=False)
-                ),
-                required=False
+            resource_state=dict(
+                type='str',
+                choices=["Enabled", "Disabled"]
+            ),
+            sku=dict(
+                type='str',
+                required=True,
+                choices=[
+                    'Standard_AzureFrontDoor',
+                    'Premium_AzureFrontDoor'
+                ]
             ),
             state=dict(
                 type='str',
                 default='present',
                 choices=['present', 'absent'],
                 required=False
-            ),
-            supported_protocols=dict(
-                type='list',
-                choices=['Http', 'Https'],
-                required=False
             )
         )
 
-        self.content_types_to_compress = None
-        self.custom_domains = None
-        self.enabled_state = None
-        self.endpoint_name = None
-        self.forwarding_protocol = None
-        self.https_redirect = None
-        self.link_to_default_domain = None
-        self.is_compression_enabled = None
-        self.origin_path = None
-        self.patterns_to_match = None
-        self.rule_sets = None
-        self.rule_set_ids = None
-        self.supported_protocols = None
+        self.custom_rules = None
+        self.location = None
+        self.managed_rules = None
+        self.policy_settings = None
+        self.resource_state = None
+        self.rate_limit_rules = None
+        self.sku = None
 
         self.name = None
         self.origin_group_name = None
@@ -269,16 +243,11 @@ class AzureRMWAFPolicy(AzureRMModuleBase):
 
         self.wafpolicy_client = None
 
-        required_if = [
-            # ('state', 'present', ['host_name']) # TODO: Flesh these out
-        ]
-
         self.results = dict(changed=False)
 
         super(AzureRMWAFPolicy, self).__init__(derived_arg_spec=self.module_arg_spec,
                                                 supports_check_mode=True,
-                                                supports_tags=False,
-                                                required_if=required_if)
+                                                supports_tags=True)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
@@ -290,23 +259,8 @@ class AzureRMWAFPolicy(AzureRMModuleBase):
 
         to_be_updated = False
 
-        # Do not need the resource group location
-        # resource_group = self.get_resource_group(self.resource_group)
-        # if not self.location:
-        #     self.location = resource_group.location
-
         # Get the existing resource
         response = self.get_wafpolicy()
-
-        # Get the Origin Group ID
-        self.origin_group_id = self.get_origin_group_id()
-        if self.origin_group_id is False:
-            self.fail("Could not obtain Origin Group ID from {0}".format(self.origin_group_name))
-        
-        # Populate the rule_set_ids
-        convert_rules = self.get_rule_set_ids()
-        if not convert_rules:
-            self.fail("Failed to convert the Rule Set names to IDs")
 
         if self.state == 'present':
 
@@ -355,15 +309,15 @@ class AzureRMWAFPolicy(AzureRMModuleBase):
         '''
         self.log("Creating the Azure WAF Policy instance {0}".format(self.name))
         policy_settings = PolicySettings(
-            enabled_state=self.enabled_state,
-            mode=self.mode,
-            default_redirect_url=self.default_redirect_url,
-            default_custom_block_response_status_code=self.default_custom_block_response_status_code,
-            default_custom_block_response_body=self.default_custom_block_response_body
+            enabled_state=self.policy_settings['enabled_state'],
+            mode=self.policy_settings['mode'],
+            default_redirect_url=self.policy_settings['default_redirect_url'],
+            default_custom_block_response_status_code=self.policy_settings['default_custom_block_response_status_code'],
+            default_custom_block_response_body=self.policy_settings['default_custom_block_response_body']
         )
 
         rules = []
-        for rule in self.rules:
+        for rule in self.rate_limit_rules:
             single_rule = RateLimitRule(
                 name=rule.name, # str
                 priority=rule.priority, # int
@@ -409,16 +363,18 @@ class AzureRMWAFPolicy(AzureRMModuleBase):
         managed_rules =  ManagedRuleSetList(
             rules=rules
         )
+
+        extended_properties = {}
         
         parameters = CdnWebApplicationFirewallPolicy(
             location=self.location,
             sku=self.sku,
             tags=self.tags,
-            etag=self.etag,
             policy_settings=policy_settings,
             rate_limit_rules=rate_limit_rules, 
             custom_rules=custom_rules,
-            managed_rules=managed_rules
+            managed_rules=managed_rules,
+            extended_properties=extended_properties
         )
         
         try:
@@ -477,11 +433,9 @@ class AzureRMWAFPolicy(AzureRMModuleBase):
         self.log(
             "Checking if the WAF Policy {0} is present".format(self.name))
         try:
-            response = self.wafpolicy_client.wafpolicys.get(
+            response = self.wafpolicy_client.policies.get(
                 resource_group_name=self.resource_group,
-                profile_name=self.profile_name,
-                endpoint_name=self.endpoint_name,
-                wafpolicy_name=self.name,
+                policy_name=self.name
             )
             self.log("Response : {0}".format(response))
             self.log("WAF Policy : {0} found".format(response.name))
@@ -497,17 +451,12 @@ class AzureRMWAFPolicy(AzureRMModuleBase):
                                                        api_version='2023-05-01')
         return self.wafpolicy_client
 
-    # TODO: Use this to create a list of IDs
-    def construct_subresource_list(self, raw):
-        return [self.wafpolicy_client.SubResource(id=x) for x in raw] if raw else None
-
-
 def main():
     """Main execution"""
     AzureRMWAFPolicy()
     # TODO: Clean this up
     # x = CdnManagementClient()
-    # x.policies.begin_create_or_update()
+    # x.policies.get()
 
 if __name__ == '__main__':
     main()

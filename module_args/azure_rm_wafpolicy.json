@@ -1,26 +1,1183 @@
 {
     "ANSIBLE_MODULE_ARGS": {
-      "name": "wafpolicy1",
+      "custom_rules": {
+        "rules": [
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "20.43.180.144/28"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "AzureConnectedEastAsia",
+            "priority": 53,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "52.150.54.144/28"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "AzureConnectedEastUS",
+            "priority": 52,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "52.255.84.80/28"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "AzureConnectedSouthCentralUS",
+            "priority": 51,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "52.255.84.96/28"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "AzureConnectedWorldWide",
+            "priority": 54,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "158.26.0.0/16"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "DirectOutboundDallasandFPGW",
+            "priority": 49,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "192.67.48.0/24"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "DirectOutboundHouston",
+            "priority": 50,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "136.228.240.0/24"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossAmsterdam",
+            "priority": 19,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "163.120.83.0/24"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossAmsterdam2",
+            "priority": 20,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "136.228.226.64/28"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossBogota",
+            "priority": 34,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "136.228.237.192/27"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossBuenosAires",
+            "priority": 8,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "136.228.237.224/28"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossBuenosAires2",
+            "priority": 9,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "210.13.77.19/32"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossChina",
+            "priority": 44,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "210.13.96.243/32"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossChina2",
+            "priority": 45,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "136.228.230.64/27"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossDelhi",
+            "priority": 35,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "136.228.231.0/27"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossDelhi2",
+            "priority": 36,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "136.228.218.192/27"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossDubai",
+            "priority": 18,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "149.19.50.96/28"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossEgypt",
+            "priority": 42,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "136.228.208.224/27"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossFrankfurt",
+            "priority": 40,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "149.19.55.224/27"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossFrankfurt2",
+            "priority": 41,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "136.228.222.192/28"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossIstanbul",
+            "priority": 28,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "136.228.222.176/28"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossIstanbul2",
+            "priority": 29,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "136.228.223.192/27"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossJohannesburg",
+            "priority": 23,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "136.228.223.160/27"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossJohannesburg2",
+            "priority": 24,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "136.228.219.80/28"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossMilan",
+            "priority": 30,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "136.228.219.224/28"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossMilan2",
+            "priority": 31,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "103.111.181.192/27"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossMumbai",
+            "priority": 16,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "103.111.181.224/27"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossMumbai2",
+            "priority": 17,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "185.251.8.192/26"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossParis",
+            "priority": 25,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "185.251.9.0/26"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossParis2",
+            "priority": 26,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "97.64.51.0/28"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossQueretaro",
+            "priority": 37,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "136.228.241.0/24"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossSingapore",
+            "priority": 21,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "163.120.94.0/23"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossSingapore2",
+            "priority": 22,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "149.19.57.240/29"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossSingapore3",
+            "priority": 48,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "149.19.39.96/29"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossSouthKorea",
+            "priority": 43,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "136.228.192.0/24"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossStaging",
+            "priority": 46,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "136.228.209.80/28"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossStockholm",
+            "priority": 32,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "136.228.209.224/28"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossStockholm2",
+            "priority": 33,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "103.111.183.192/27"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossSydney",
+            "priority": 14,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "163.120.69.192/27"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossSydney2",
+            "priority": 15,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "136.228.213.128/26"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossSoPaulo",
+            "priority": 5,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "136.228.213.192/27"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossSoPaulo2",
+            "priority": 6,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "136.228.243.192/27"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossTokyo",
+            "priority": 12,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "136.228.243.224/27"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossTokyo2",
+            "priority": 13,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "149.19.44.160/29"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossTokyo3",
+            "priority": 47,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "136.228.242.0/24"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossToronto",
+            "priority": 7,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "136.228.235.192/26"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossUK",
+            "priority": 10,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "163.120.93.64/26"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossUK2",
+            "priority": 11,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "136.228.238.0/24"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossUSDallas",
+            "priority": 1,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "163.120.91.0/24"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossUSDallas2",
+            "priority": 2,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "138.43.107.128/25"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossUSEast",
+            "priority": 3,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "136.228.255.128/25"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossUSWest",
+            "priority": 4,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "136.228.251.0/24"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossVancouver",
+            "priority": 27,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "136.228.220.64/29"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossWarsaw",
+            "priority": 38,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Allow",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "136.228.220.32/29"
+                ],
+                "match_variable": "RemoteAddr",
+                "negate_condition": false,
+                "operator": "IPMatch",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "iBossWarsaw2",
+            "priority": 39,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          },
+          {
+            "action": "Block",
+            "enabled_state": "Enabled",
+            "match_conditions": [
+              {
+                "match_value": [
+                  "/"
+                ],
+                "match_variable": "RequestUri",
+                "negate_condition": false,
+                "operator": "BeginsWith",
+                "selector": null,
+                "transforms": []
+              }
+            ],
+            "name": "Block",
+            "priority": 999,
+            "rate_limit_duration_in_minutes": 1,
+            "rate_limit_threshold": 10,
+            "rule_type": "MatchRule"
+          }
+        ]
+      },
+      "location": "Global",
+      "managed_rules": {
+        "managed_rule_sets": []
+      },
+      "name": "allstarsdevwafjpt",
+      "policy_settings": {
+        "enabled_state": "Enabled",
+        "mode": "Prevention"
+      },
       "resource_group": "aaa-id-for-testing-aaa-rg",
-      "state": "absent",
-      "location": "Enabled",
-      "sku": "Premium_AzureFrontDoor",
-      "tags": [{"tagname":"tagvalue"}],
-      "rules": [
-        {
-          "name":"rule1",
-          "priority": 1,
-          "match_conditions": [
-            {
-              "match_variable": "REQUEST_HEADER",
-              "operator": "BEGINS_WITH",
-              "match_value": ["xml","bob"],
-              "selector": "",
-              "negate_condition": false,
-              "transforms": ["URL_ENCODE"]
-            }
-          ]
-        }
-      ]
+      "resource_state": "Enabled",
+      "sku": "Standard_AzureFrontDoor",
+      "tags": {
+        "Environment": "Dev",
+        "IaC_Enabled": "true",
+        "Pattern": "XM/terraform-azurerm-basic-webapp",
+        "Provisioner": "TerraformSux"
+      },
+      "subscription_id": "f5c96a5a-b3f6-470f-8a0c-817cf3833928",
+      "state": "present"
     }
 }
