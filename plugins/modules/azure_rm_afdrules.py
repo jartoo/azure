@@ -1,6 +1,8 @@
 #!/usr/bin/python
 #
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+#
+# Python SDK Reference: https://learn.microsoft.com/en-us/python/api/azure-mgmt-cdn/azure.mgmt.cdn.operations.rulesoperations?view=azure-python
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
@@ -29,69 +31,44 @@ options:
             - Name of the Resource group within the Azure subscription.
         required: true
         type: str
-    rule:
+    order:
         description:
-            - The delivery rule properties.
-        type: dict
+            - The order in which the rules are applied for the endpoint. Possible values {0,1,2,3,.........}. A rule with a lesser order will be applied before a rule with a greater order. Rule with order 0 is a special rule. It does not require any condition and actions listed in it will always be applied.
+        type: int
+    conditions:
+        description:
+            - A list of conditions that must be matched for the actions to be executed.
+        type: list
         suboptions:
-            order:
+            name:
                 description:
-                    - The order in which the rules are applied for the endpoint. Possible values {0,1,2,3,.........}. A rule with a lesser order will be applied before a rule with a greater order. Rule with order 0 is a special rule. It does not require any condition and actions listed in it will always be applied.
-                type: int
-            conditions:
+                    - The name of the condition for the delivery rule.
+                type: str
+                choices:
+                    - ClientPort
+                    - Cookies
+                    - HostName
+                    - HttpVersion
+                    - IsDevice
+                    - PostArgs
+                    - QueryString
+                    - RemoteAddress
+                    - RequestBody
+                    - RequestHeader
+                    - RequestMethod
+                    - RequestScheme
+                    - RequestUri
+                    - ServerPort
+                    - SocketAddr
+                    - SslProtocol
+                    - UrlFileExtension
+                    - UrlFileName
+                    - UrlPath
+            parameters:
+                type: dict
                 description:
-                    - A list of conditions that must be matched for the actions to be executed.
-                type: list
+                    - The parameters for the action
                 suboptions:
-                    name:
-                        description:
-                            - The name of the condition for the delivery rule.
-                        type: str
-                        choices:
-                            - ClientPort
-                            - Cookies
-                            - HostName
-                            - HttpVersion
-                            - IsDevice
-                            - PostArgs
-                            - QueryString
-                            - RemoteAddress
-                            - RequestBody
-                            - RequestHeader
-                            - RequestMethod
-                            - RequestScheme
-                            - RequestUri
-                            - ServerPort
-                            - SocketAddr
-                            - SslProtocol
-                            - UrlFileExtension
-                            - UrlFileName
-                            - UrlPath
-                    type_name:
-                        description:
-                            - The name of the condition for the delivery rule.
-                        required: True
-                        type: str
-                        choices:
-                            - DeliveryRuleClientPortConditionParameters
-                            - DeliveryRuleCookiesConditionParameters
-                            - DeliveryRuleHostNameConditionParameters
-                            - DeliveryRuleHttpVersionConditionParameters
-                            - DeliveryRuleIsDeviceConditionParameters
-                            - DeliveryRulePostArgsConditionParameters
-                            - DeliveryRuleQueryStringConditionParameters
-                            - DeliveryRuleRemoteAddressConditionParameters
-                            - DeliveryRuleRequestBodyConditionParameters
-                            - DeliveryRuleRequestHeaderConditionParameters
-                            - DeliveryRuleRequestMethodConditionParameters
-                            - DeliveryRuleRequestSchemeConditionParameters
-                            - DeliveryRuleRequestUriConditionParameters
-                            - DeliveryRuleServerPortConditionParameters
-                            - DeliveryRuleSocketAddrConditionParameters
-                            - DeliveryRuleSslProtocolConditionParameters
-                            - DeliveryRuleUrlFileExtensionMatchConditionParameters
-                            - DeliveryRuleUrlFilenameConditionParameters
-                            - DeliveryRuleUrlPathMatchConditionParameters
                     operator:
                         description:
                             - Describes operator to be matched.
@@ -133,40 +110,31 @@ options:
                             - Uppercase
                             - URLDecode
                             - URLEncode
-            actions:
+    actions:
+        description:
+            - A list of actions that are executed when all the conditions of a rule are satisfied.
+        required: True
+        type: list
+        suboptions:
+            name:
                 description:
-                    - A list of actions that are executed when all the conditions of a rule are satisfied.
-                required: True
-                type: list
+                    - The name of the action for the delivery rule.
+                type: str
+                choices:
+                    - CacheExpiration
+                    - CacheKeyQueryString
+                    - ModifyRequestHeader
+                    - ModifyResponseHeader
+                    - OriginGroupOverride
+                    - RouteConfigurationOverride
+                    - UrlRedirect
+                    - UrlRewrite
+                    - UrlSigning
+            parameters:
+                type: dict
+                description:
+                    - The parameters for the action
                 suboptions:
-                    name:
-                        description:
-                            - The name of the action for the delivery rule.
-                        type: str
-                        choices:
-                            - CacheExpiration
-                            - CacheKeyQueryString
-                            - ModifyRequestHeader
-                            - ModifyResponseHeader
-                            - OriginGroupOverride
-                            - RouteConfigurationOverride
-                            - UrlRedirect
-                            - UrlRewrite
-                            - UrlSigning
-                    type_name:
-                        description:
-                            - The name of the condition for the delivery rule.
-                        required: True
-                        type: str
-                        choices:
-                            - DeliveryRuleCacheExpirationActionParameters
-                            - DeliveryRuleCacheKeyQueryStringBehaviorActionParameters
-                            - DeliveryRuleHeaderActionParameters
-                            - DeliveryRuleOriginGroupOverrideActionParameters
-                            - DeliveryRuleRouteConfigurationOverrideActionParameters
-                            - DeliveryRuleUrlRedirectActionParameters
-                            - DeliveryRuleUrlRewriteActionParameters
-                            - DeliveryRuleUrlSigningActionParameters
                     cache_behavior:
                         description:
                             - Caching behavior for the requests.
@@ -316,15 +284,14 @@ options:
                                 description:
                                     - Parameter name
                                 type: str
-            match_processing_behavior:
-                description:
-                    - If this rule is a match should the rules engine continue running the remaining rules or stop.
-                default: Continue
-                type: str
-                choices:
-                    - Continue
-                    - Stop
-                
+    match_processing_behavior:
+        description:
+            - If this rule is a match should the rules engine continue running the remaining rules or stop.
+        default: Continue
+        type: str
+        choices:
+            - Continue
+            - Stop
     rule_set_name:
         description:
             - Name of the rule set under the profile.
@@ -350,72 +317,7 @@ EXAMPLES = '''
 
 '''
 RETURN = '''
-additional_latency_in_milliseconds:
-    description: 
-    returned: 
-    type: int
-    example:
-deployment_status:
-    description: 
-    returned: 
-    type: 
-    example:
 id:
-    description: 
-    returned: 
-    type: str
-    example:
-name:
-    description: 
-    returned: 
-    type: str
-    example:
-probe_interval_in_seconds:
-    description: 
-    returned: 
-    type: int
-    example:
-probe_path:
-    description: 
-    returned: 
-    type: str
-    example:
-probe_protocol:
-    description: 
-    returned: 
-    type: str
-    example:
-probe_request_type:
-    description: 
-    returned: 
-    type: str
-    example:
-provisioning_state:
-    description: 
-    returned: 
-    type: str
-    example:
-sample_size:
-    description: 
-    returned: 
-    type: int
-    example:
-session_affinity_state:
-    description: 
-    returned: 
-    type: str
-    example:
-successful_samples_required:
-    description: 
-    returned: 
-    type: int
-    example:
-traffic_restoration_time_to_healed_or_new_endpoints_in_minutes:
-    description: 
-    returned: 
-    type: int
-    example:
-type:
     description: 
     returned: 
     type: str
@@ -424,12 +326,36 @@ type:
 from ansible_collections.azure.azcollection.plugins.module_utils.azure_rm_common import AzureRMModuleBase
 
 try:
-    from azure.mgmt.cdn.models import Rule, HeaderActionParameters, DeliveryRuleResponseHeaderAction, \
-    DeliveryRuleResponseHeaderAction, RouteConfigurationOverrideActionParameters, \
-    DeliveryRuleRouteConfigurationOverrideAction, UrlRedirectAction, UrlRewriteAction, \
-    UrlSigningAction, OriginGroupOverride, ResourceReference, ForwardingProtocol, CacheConfiguration, \
-    RuleQueryStringCachingBehavior, RuleIsCompressionEnabled, DeliveryRuleUrlPathCondition, \
-    UrlPathMatchConditionParameters
+    from azure.mgmt.cdn.models import Rule, RuleUpdateParameters, ResourceReference, \
+    DeliveryRuleClientPortCondition, ClientPortMatchConditionParameters, \
+    DeliveryRuleCookiesCondition, CookiesMatchConditionParameters, \
+    DeliveryRuleHostNameCondition, HostNameMatchConditionParameters, \
+    DeliveryRuleHttpVersionCondition, HttpVersionMatchConditionParameters, \
+    DeliveryRuleIsDeviceCondition, IsDeviceMatchConditionParameters, \
+    DeliveryRulePostArgsCondition, PostArgsMatchConditionParameters, \
+    DeliveryRuleQueryStringCondition, QueryStringMatchConditionParameters, \
+    DeliveryRuleRemoteAddressCondition, RemoteAddressMatchConditionParameters, \
+    DeliveryRuleRequestBodyCondition, RequestBodyMatchConditionParameters, \
+    DeliveryRuleRequestHeaderCondition, RequestHeaderMatchConditionParameters, \
+    DeliveryRuleRequestMethodCondition, RequestMethodMatchConditionParameters, \
+    DeliveryRuleRequestSchemeCondition, RequestSchemeMatchConditionParameters, \
+    DeliveryRuleRequestUriCondition, RequestUriMatchConditionParameters, \
+    DeliveryRuleServerPortCondition, ServerPortMatchConditionParameters, \
+    DeliveryRuleSocketAddrCondition, SocketAddrMatchConditionParameters, \
+    DeliveryRuleSslProtocolCondition, SslProtocolMatchConditionParameters, \
+    DeliveryRuleUrlFileExtensionCondition, UrlFileExtensionMatchConditionParameters, \
+    DeliveryRuleUrlFileNameCondition, UrlFileNameMatchConditionParameters, \
+    DeliveryRuleUrlPathCondition, UrlPathMatchConditionParameters, \
+    DeliveryRuleCacheExpirationAction, CacheExpirationActionParameters, \
+    DeliveryRuleCacheKeyQueryStringAction, CacheKeyQueryStringActionParameters, \
+    DeliveryRuleRequestHeaderAction, HeaderActionParameters, \
+    DeliveryRuleResponseHeaderAction, \
+    OriginGroupOverrideAction, OriginGroupOverrideActionParameters, OriginGroupOverride, CacheConfiguration, ForwardingProtocol, \
+    DeliveryRuleRouteConfigurationOverrideAction, RouteConfigurationOverrideActionParameters, \
+    UrlRedirectAction, UrlRedirectActionParameters, \
+    UrlRewriteAction, UrlRewriteActionParameters, \
+    UrlSigningAction, UrlSigningActionParameters, UrlSigningParamIdentifier
+
     
     from azure.mgmt.cdn import CdnManagementClient
 except ImportError as ec:
@@ -438,6 +364,8 @@ except ImportError as ec:
 
 def rules_to_dict(rules):
     return dict(
+        actions = rules.actions,
+        conditions = rules.conditions,
         deployment_status = rules.deployment_status,
         id = rules.id,
         match_processing_behavior=rules.match_processing_behavior,
@@ -447,7 +375,6 @@ def rules_to_dict(rules):
         rule_set_name = rules.rule_set_name,
         type=rules.type
     )
-
 
 class AzureRMRules(AzureRMModuleBase):
 
@@ -488,21 +415,88 @@ class AzureRMRules(AzureRMModuleBase):
                 type='list',
                 elements='dict',
                 options=dict(
-                    name=dict(type='str', required=False),
+                    name=dict(
+                        type='str',
+                        required=True,
+                        choices=[
+                            'CacheExpiration',
+                            'CacheKeyQueryString',
+                            'ModifyRequestHeader',
+                            'ModifyResponseHeader',
+                            'OriginGroupOverride',
+                            'RouteConfigurationOverride',
+                            'UrlRedirect',
+                            'UrlRewrite',
+                            'UrlSigning'
+                        ]
+                    ),
                     parameters=dict(
                         type='dict',
                         options=dict(
-                            header_action=dict(type='str', required=False),
-                            header_name=dict(type='str', required=False),
-                            type_name=dict(type='str', required=False),
-                            value=dict(type='str', required=False),
+                            header_action=dict(type='str'),
+                            header_name=dict(type='str'),
+                            type_name=dict(type='str'),
+                            value=dict(type='str'),
                         )
                     ),
-                ),
-                required=False
+                )
             ),
-            conditions=dict(type='list', elements='dict', required=False)
+            conditions=dict(
+                type='list', 
+                elements='dict', 
+                options=dict(
+                    name=dict(type='str', required=True),
+                    parameters=dict(
+                        type='dict',
+                        options=dict(
+                            header_action=dict(type='str'),
+                            operator=dict(
+                                type='str',
+                                required=True,
+                                choices=[
+                                    'Any',
+                                    'Equal',
+                                    'Contains',
+                                    'BeginsWith',
+                                    'EndsWith',
+                                    'LessThan',
+                                    'LessThanOrEqual',
+                                    'GreaterThan',
+                                    'GreaterThanOrEqual',
+                                    'RegEx',
+                                    'IPMatch',
+                                    'GeoMatch'
+                                ]
+                            ),
+                            negate_condition=dict(
+                                type='bool',
+                                required=True
+                            ),
+                            match_values=dict(
+                                type='list'
+                            ),
+                            selector=dict(
+                                type='str'
+                            ),
+                            transforms=dict(
+                                type='list',
+                                choices=[
+                                    'Lowercase',
+                                    'RemoveNulls',
+                                    'Trim',
+                                    'Uppercase',
+                                    'URLDecode',
+                                    'URLEncode'
+                                ]
+                            )
+                        )
+                    )
+                )
+            )
         )
+
+        self.parameters = None
+        self.response = None
 
         self.resource_group = None
         self.name = None
@@ -511,16 +505,11 @@ class AzureRMRules(AzureRMModuleBase):
 
         self.rules_client = None
 
-        required_if = [
-            # ('state', 'present', ['host_name']) # TODO: Flesh these out
-        ]
-
         self.results = dict(changed=False)
 
         super(AzureRMRules, self).__init__(derived_arg_spec=self.module_arg_spec,
                                                 supports_check_mode=True,
-                                                supports_tags=False,
-                                                required_if=required_if)
+                                                supports_tags=False)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
@@ -530,12 +519,13 @@ class AzureRMRules(AzureRMModuleBase):
 
         self.rules_client = self.get_rules_client()
 
-        response = self.get_rules()
-
+        self.response = self.get_rules()
+        
         if self.state == 'present':
 
-            if not response:
+            if not self.response:
                 self.log("Need to create the Rule")
+                self.build_parameters()
 
                 if not self.check_mode:
                     new_response = self.create_rules()
@@ -544,18 +534,24 @@ class AzureRMRules(AzureRMModuleBase):
                 self.results['changed'] = True
 
             else:
-                self.log('Results : {0}'.format(response))
+                self.build_parameters(True)
+                if self.rules_are_different():
+                    self.update_rules()
+                    self.results['changed'] = True
+
+                self.results['id'] = self.response['id']
+                self.log('Results : {0}'.format(self.response))
 
         elif self.state == 'absent':
-            if not response:
-                self.fail("Rule {0} does not exist.".format(self.name))
+            if not self.response:
+                self.log("Rule {0} does not exist.".format(self.name))
             else:
                 self.log("Need to delete the Rule")
                 self.results['changed'] = True
 
+                self.results['id'] = self.response['id']
                 if not self.check_mode:
                     self.delete_rules()
-                    self.results['id'] = response['id']
 
         return self.results
 
@@ -567,61 +563,303 @@ class AzureRMRules(AzureRMModuleBase):
         '''
         self.log("Creating the Azure Rules instance {0}".format(self.name))
 
+        try:
+            poller = self.rules_client.rules.begin_create(
+                resource_group_name=self.resource_group,
+                profile_name=self.profile_name,
+                rule_set_name=self.rule_set_name,
+                rule_name=self.name,
+                rule=self.parameters
+            )
+            response = self.get_poller_result(poller)
+            return rules_to_dict(response)
+        except Exception as exc:
+            self.log('Error attempting to create Azure Rules instance.')
+            self.fail("Error Creating Azure Rules instance: {0}".format(exc.message))
+
+    def update_rules(self):
+        '''
+        Update Azure Rules.
+
+        :return: deserialized Azure Rules instance state dictionary
+        '''
+        self.log("Updating the Azure Rules instance {0}".format(self.name))
+
+        try:
+            poller = self.rules_client.rules.begin_update(
+                resource_group_name=self.resource_group,
+                profile_name=self.profile_name,
+                rule_set_name=self.rule_set_name,
+                rule_name=self.name,
+                rule_update_properties=self.parameters
+            )
+            response = self.get_poller_result(poller)
+            return rules_to_dict(response)
+        except Exception as exc:
+            self.log('Error attempting to update Azure Rules instance.')
+            self.fail("Error Updating Azure Rules instance: {0}".format(exc.message))
+
+    def rules_are_different(self):
+        if self.response['order'] != self.parameters.order:
+            return True
+        if self.response['match_processing_behavior'] != self.parameters.match_processing_behavior:
+            return True
+        if self.response['actions'] != self.parameters.actions:
+            return True
+        if self.response['conditions'] != self.parameters.conditions:
+            return True            
+        return False
+    
+    def build_parameters(self, update = False):
         conditions = None
         if self.conditions:
             conditions = []
             for condition in self.conditions:
-                if condition['name'] == 'UrlPath':
-                    conditionrule = DeliveryRuleUrlPathCondition(
-                        parameters=UrlPathMatchConditionParameters(
-                            type_name=condition['parameters']['type_name'],
+                conditionrule = None
+                if condition['name'] == 'ClientPort':
+                    conditionrule = DeliveryRuleClientPortCondition(
+                        parameters = ClientPortMatchConditionParameters(
+                            type_name = 'DeliveryRuleClientPortConditionParameters',
                             operator=condition['parameters']['operator'],
                             negate_condition=condition['parameters']['negate_condition'],
                             match_values=condition['parameters']['match_values'],
                             transforms=condition['parameters']['transforms']
                         )
                     )
-                    # conditionrule = {
-                    #     "additional_properties": {},
-                    #     "name": condition['name'],
-                    #     "parameters": condition['parameters']
-                    # }
+                elif condition['name'] == 'Cookies':
+                    conditionrule = DeliveryRuleCookiesCondition(
+                        parameters=CookiesMatchConditionParameters(
+                            type_name='DeliveryRuleCookiesConditionParameters',
+                            selector=condition['parameters']['selector'],
+                            operator=condition['parameters']['operator'],
+                            negate_condition=condition['parameters']['negate_condition'],
+                            match_values=condition['parameters']['match_values'],
+                            transforms=condition['parameters']['transforms']
+                        )
+                    )
+                elif condition['name'] == 'HostName':
+                    conditionrule = DeliveryRuleHostNameCondition(
+                        parameters=HostNameMatchConditionParameters(
+                            type_name='DeliveryRuleHostNameConditionParameters',
+                            operator=condition['parameters']['operator'],
+                            negate_condition=condition['parameters']['negate_condition'],
+                            match_values=condition['parameters']['match_values'],
+                            transforms=condition['parameters']['transforms']
+                        )
+                    )
+                elif condition['name'] == 'HttpVersion':
+                    conditionrule = DeliveryRuleHttpVersionCondition(
+                        parameters=HttpVersionMatchConditionParameters(
+                            type_name='DeliveryRuleHttpVersionConditionParameters',
+                            operator=condition['parameters']['operator'],
+                            negate_condition=condition['parameters']['negate_condition'],
+                            match_values=condition['parameters']['match_values'],
+                            transforms=condition['parameters']['transforms']
+                        )
+                    )
+                elif condition['name'] == 'IsDevice':
+                    conditionrule = DeliveryRuleIsDeviceCondition(
+                        parameters=IsDeviceMatchConditionParameters(
+                            type_name='DeliveryRuleIsDeviceConditionParameters',
+                            operator=condition['parameters']['operator'],
+                            negate_condition=condition['parameters']['negate_condition'],
+                            match_values=condition['parameters']['match_values'],
+                            transforms=condition['parameters']['transforms']
+                        )
+                    )
+                elif condition['name'] == 'PostArgs':
+                    conditionrule = DeliveryRulePostArgsCondition(
+                        parameters=PostArgsMatchConditionParameters(
+                            type_name='DeliveryRulePostArgsConditionParameters',
+                            selector=condition['parameters']['selector'],
+                            operator=condition['parameters']['operator'],
+                            negate_condition=condition['parameters']['negate_condition'],
+                            match_values=condition['parameters']['match_values'],
+                            transforms=condition['parameters']['transforms']
+                        )
+                    )
+                elif condition['name'] == 'QueryString':
+                    conditionrule = DeliveryRuleQueryStringCondition(
+                        parameters=QueryStringMatchConditionParameters(
+                            type_name='DeliveryRuleQueryStringConditionParameters',
+                            operator=condition['parameters']['operator'],
+                            negate_condition=condition['parameters']['negate_condition'],
+                            match_values=condition['parameters']['match_values'],
+                            transforms=condition['parameters']['transforms']
+                        )
+                    )
+                elif condition['name'] == 'RemoteAddress':
+                    conditionrule = DeliveryRuleRemoteAddressCondition(
+                        parameters=RemoteAddressMatchConditionParameters(
+                            type_name='DeliveryRuleRemoteAddressConditionParameters',
+                            operator=condition['parameters']['operator'],
+                            negate_condition=condition['parameters']['negate_condition'],
+                            match_values=condition['parameters']['match_values'],
+                            transforms=condition['parameters']['transforms']
+                        )
+                    )
+                elif condition['name'] == 'RequestBody':
+                    conditionrule = DeliveryRuleRequestBodyCondition(
+                        parameters=RequestBodyMatchConditionParameters(
+                            type_name='DeliveryRuleRequestBodyConditionParameters',
+                            operator=condition['parameters']['operator'],
+                            negate_condition=condition['parameters']['negate_condition'],
+                            match_values=condition['parameters']['match_values'],
+                            transforms=condition['parameters']['transforms']
+                        )
+                    )
+                elif condition['name'] == 'RequestHeader':
+                    conditionrule = DeliveryRuleRequestHeaderCondition(
+                        parameters=RequestHeaderMatchConditionParameters(
+                            type_name='DeliveryRuleRequestHeaderConditionParameters',
+                            selector=condition['parameters']['selector'],
+                            operator=condition['parameters']['operator'],
+                            negate_condition=condition['parameters']['negate_condition'],
+                            match_values=condition['parameters']['match_values'],
+                            transforms=condition['parameters']['transforms']
+                        )
+                    )
+                elif condition['name'] == 'RequestMethod':
+                    conditionrule = DeliveryRuleRequestMethodCondition(
+                        parameters=RequestMethodMatchConditionParameters(
+                            type_name='DeliveryRuleRequestMethodConditionParameters',
+                            operator=condition['parameters']['operator'],
+                            negate_condition=condition['parameters']['negate_condition'],
+                            match_values=condition['parameters']['match_values'],
+                            transforms=condition['parameters']['transforms']
+                        )
+                    )
+                elif condition['name'] == 'RequestScheme':
+                    conditionrule = DeliveryRuleRequestSchemeCondition(
+                        parameters=RequestSchemeMatchConditionParameters(
+                            type_name='DeliveryRuleRequestSchemeConditionParameters',
+                            operator=condition['parameters']['operator'],
+                            negate_condition=condition['parameters']['negate_condition'],
+                            match_values=condition['parameters']['match_values'],
+                            transforms=condition['parameters']['transforms']
+                        )
+                    )
+                elif condition['name'] == 'RequestUri':
+                    conditionrule = DeliveryRuleRequestUriCondition(
+                        parameters=RequestUriMatchConditionParameters(
+                            type_name='DeliveryRuleRequestUriConditionParameters',
+                            operator=condition['parameters']['operator'],
+                            negate_condition=condition['parameters']['negate_condition'],
+                            match_values=condition['parameters']['match_values'],
+                            transforms=condition['parameters']['transforms']
+                        )
+                    )
+                elif condition['name'] == 'ServerPort':
+                    conditionrule = DeliveryRuleServerPortCondition(
+                        parameters=ServerPortMatchConditionParameters(
+                            type_name='DeliveryRuleServerPortConditionParameters',
+                            operator=condition['parameters']['operator'],
+                            negate_condition=condition['parameters']['negate_condition'],
+                            match_values=condition['parameters']['match_values'],
+                            transforms=condition['parameters']['transforms']
+                        )
+                    )
+                elif condition['name'] == 'SocketAddr':
+                    conditionrule = DeliveryRuleSocketAddrCondition(
+                        parameters=SocketAddrMatchConditionParameters(
+                            type_name='DeliveryRuleSocketAddrConditionParameters',
+                            operator=condition['parameters']['operator'],
+                            negate_condition=condition['parameters']['negate_condition'],
+                            match_values=condition['parameters']['match_values'],
+                            transforms=condition['parameters']['transforms']
+                        )
+                    )
+                elif condition['name'] == 'SslProtocol':
+                    conditionrule = DeliveryRuleSslProtocolCondition(
+                        parameters=SslProtocolMatchConditionParameters(
+                            type_name='DeliveryRuleSslProtocolConditionParameters',
+                            operator=condition['parameters']['operator'],
+                            negate_condition=condition['parameters']['negate_condition'],
+                            match_values=condition['parameters']['match_values'],
+                            transforms=condition['parameters']['transforms']
+                        )
+                    )
+                elif condition['name'] == 'UrlFileExtension':
+                    conditionrule = DeliveryRuleUrlFileExtensionCondition(
+                        parameters=UrlFileExtensionMatchConditionParameters(
+                            type_name='DeliveryRuleUrlFileExtensionMatchConditionParameters',
+                            operator=condition['parameters']['operator'],
+                            negate_condition=condition['parameters']['negate_condition'],
+                            match_values=condition['parameters']['match_values'],
+                            transforms=condition['parameters']['transforms']
+                        )
+                    )
+                elif condition['name'] == 'UrlFileName':
+                    conditionrule = DeliveryRuleUrlFileNameCondition(
+                        parameters=UrlFileNameMatchConditionParameters(
+                            type_name='DeliveryRuleUrlFilenameConditionParameters',
+                            operator=condition['parameters']['operator'],
+                            negate_condition=condition['parameters']['negate_condition'],
+                            match_values=condition['parameters']['match_values'],
+                            transforms=condition['parameters']['transforms']
+                        )
+                    )
+                elif condition['name'] == 'UrlPath':
+                    conditionrule = DeliveryRuleUrlPathCondition(
+                        parameters=UrlPathMatchConditionParameters(
+                            type_name='DeliveryRuleUrlPathMatchConditionParameters',
+                            operator=condition['parameters']['operator'],
+                            negate_condition=condition['parameters']['negate_condition'],
+                            match_values=condition['parameters']['match_values'],
+                            transforms=condition['parameters']['transforms']
+                        )
+                    )
+                if conditionrule:
                     conditions.append(conditionrule)
-        # Need to handle all of the following Action Types:
-        # CACHE_EXPIRATION
-        # CACHE_KEY_QUERY_STRING
-        # MODIFY_REQUEST_HEADER
-        # MODIFY_RESPONSE_HEADER
-        # ORIGIN_GROUP_OVERRIDE
-        # ROUTE_CONFIGURATION_OVERRIDE
-        # URL_REDIRECT
-        # URL_REWRITE
-        # URL_SIGNING
+
         actions = None
         if self.actions:
             actions = []
             for action in self.actions:
-                if action['name'] == 'ModifyResponseHeader':
-                    actionrule = DeliveryRuleResponseHeaderAction(
+                actionrule = None
+                if action['name'] == 'CacheExpiration':
+                    actionrule = DeliveryRuleCacheExpirationAction(
+                        parameters=CacheExpirationActionParameters(
+                            type_name='DeliveryRuleCacheExpirationActionParameters',
+                            cache_behavior = action['parameters']['cache_behavior'],
+                            cache_type = action['parameters']['cache_type'],
+                            cache_duration = action['parameters']['cache_duration']
+                        )
+                    )
+                elif action['name'] == 'CacheKeyQueryString':
+                    actionrule = DeliveryRuleCacheKeyQueryStringAction(
+                        parameters=CacheKeyQueryStringActionParameters(
+                            type_name='DeliveryRuleCacheKeyQueryStringBehaviorActionParameters',
+                            query_string_behavior = action['parameters']['query_string_behavior'],
+                            query_parameters = action['parameters']['query_parameters']
+                        )
+                    )
+                elif action['name'] == 'ModifyRequestHeader':
+                    actionrule = DeliveryRuleRequestHeaderAction(
                         parameters=HeaderActionParameters(
-                            type_name=action['parameters']['type_name'],
+                            type_name='DeliveryRuleHeaderActionParameters',
                             header_action = action['parameters']['header_action'],
                             header_name = action['parameters']['header_name'],
                             value = action['parameters']['value']
                         )
                     )
-                    # actionrule = {
-                    #     "additional_properties": {},
-                    #     "name": action['name'],
-                    #     "parameters": {
-                    #         "additional_properties": {},
-                    #         "header_action": action['parameters']['header_action'],
-                    #         "header_name": action['parameters']['header_name'],
-                    #         "value": action['parameters']['value']
-                    #     }
-                    # }
-                    actions.append(actionrule)
-                if action['name'] == 'RouteConfigurationOverride':
+                elif action['name'] == 'ModifyResponseHeader':
+                    actionrule = DeliveryRuleResponseHeaderAction(
+                        parameters=HeaderActionParameters(
+                            type_name='DeliveryRuleHeaderActionParameters',
+                            header_action = action['parameters']['header_action'],
+                            header_name = action['parameters']['header_name'],
+                            value = action['parameters']['value']
+                        )
+                    )
+                elif action['name'] == 'OriginGroupOverride':
+                    actionrule = OriginGroupOverrideAction(
+                        parameters=OriginGroupOverrideActionParameters(
+                            type_name='DeliveryRuleOriginGroupOverrideActionParameters',
+                            origin_group = action['parameters']['origin_group'] # TODO: Get the ID from the Name
+                        )
+                    )
+                elif action['name'] == 'RouteConfigurationOverride':
                     origin_group_override = None
                     if 'origin_group_id' in action['parameters'].keys():
                         origin_group_override = OriginGroupOverride(
@@ -648,50 +886,61 @@ class AzureRMRules(AzureRMModuleBase):
                             cache_configuration=cache_configuration
                         )
                     )
-                    # actionrule = {
-                    #     "additional_properties": {},
-                    #     "name": action['name'],
-                    #     "parameters": {
-                    #         "additional_properties": {},
-                    #         "type_name": action['parameters']['type_name'] # TODO: Add origin_group_override and cache_configuration https://learn.microsoft.com/en-us/python/api/azure-mgmt-cdn/azure.mgmt.cdn.models.routeconfigurationoverrideactionparameters?view=azure-python
-                    #     }
-                    # }
+                elif action['name'] == 'UrlRedirect':
+                    actionrule = UrlRedirectAction(
+                        parameters=UrlRedirectActionParameters(
+                            type_name='DeliveryRuleUrlRedirectActionParameters',
+                            redirect_type = action['parameters']['redirect_type'],
+                            destination_protocol = action['parameters']['destination_protocol'],
+                            custom_path = action['parameters']['custom_path'],
+                            custom_hostname = action['parameters']['custom_hostname'],
+                            custom_query_string = action['parameters']['custom_query_string'],
+                            custom_fragment = action['parameters']['custom_fragment']
+                        )
+                    )
+                elif action['name'] == 'UrlRewrite':
+                    actionrule = UrlRewriteAction(
+                        parameters=UrlRewriteActionParameters(
+                            type_name='DeliveryRuleUrlRewriteActionParameters',
+                            source_pattern = action['parameters']['source_pattern'],
+                            destination = action['parameters']['destination'],
+                            preserve_unmatched_path = action['parameters']['preserve_unmatched_path']
+                        )
+                    )
+                elif action['name'] == 'UrlSigning':
+                    parameter_name_override = []
+                    for pno in action['parameters']['parameter_name_override']:
+                        apno = UrlSigningParamIdentifier(
+                            param_indicator=pno['param_indicator'],
+                            param_name=pno['param_name']
+                        )
+                        parameter_name_override.append(apno)
+                    actionrule = UrlSigningAction(
+                        parameters=UrlSigningActionParameters(
+                            type_name='DeliveryRuleUrlSigningActionParameters',
+                            algorithm = action['parameters']['algorithm'],
+                            parameter_name_override = parameter_name_override
+                        )
+                    )
+                if actionrule:
                     actions.append(actionrule)
 
-        parameters = Rule(
-            order=self.order,
-            conditions=conditions,
-            actions=actions,
-            match_processing_behavior=self.match_processing_behavior
-        )
-        # parameters = {
-        #     "additional_properties": {},
-        #     "id": None,
-        #     "name": self.name,
-        #     "type": None,
-        #     "order": self.order,
-        #     "conditions": conditions,
-        #     "actions": actions,
-        #     "match_processing_behavior": self.match_processing_behavior,
-        #     "provisioning_state": None,
-        #     "deployment_status": None
-        # }
-
-        print(parameters)
-        try:
-            poller = self.rules_client.rules.begin_create(
-                resource_group_name=self.resource_group,
-                profile_name=self.profile_name,
-                rule_set_name=self.rule_set_name,
-                rule_name=self.name,
-                rule=parameters
+        if update:
+            self.parameters = RuleUpdateParameters(
+                order=self.order,
+                conditions=conditions,
+                actions=actions,
+                match_processing_behavior=self.match_processing_behavior
             )
-            response = self.get_poller_result(poller)
-            return rules_to_dict(response)
-        except Exception as exc:
-            self.log('Error attempting to create Azure Rules instance.')
-            self.fail("Error Creating Azure Rules instance: {0}".format(exc.message))
-
+        else:
+            self.parameters = Rule(
+                order=self.order,
+                conditions=conditions,
+                actions=actions,
+                match_processing_behavior=self.match_processing_behavior
+            )
+        return
+    
     def delete_rules(self):
         '''
         Deletes the specified Azure Rules in the specified subscription and resource group.
@@ -700,7 +949,10 @@ class AzureRMRules(AzureRMModuleBase):
         '''
         self.log("Deleting the Rules {0}".format(self.name))
         try:
-            poller = self.rules_client.rule_sets.begin_delete(resource_group_name=self.resource_group, profile_name=self.profile_name, rule_set_name=self.name)
+            poller = self.rules_client.rules.begin_delete(resource_group_name=self.resource_group, 
+                profile_name=self.profile_name,
+                rule_set_name=self.rule_set_name,
+                rule_name=self.name)
             self.get_poller_result(poller)
             return True
         except Exception as e:

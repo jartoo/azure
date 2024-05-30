@@ -1,34 +1,60 @@
 {
   "ANSIBLE_MODULE_ARGS": {
-    "name": "NoCacheAuthRequests",
+    "name": "EnforceHeaders",
     "rule_set_name": "Security",
     "profile_name": "allstars-dev-fd-jpt",
     "resource_group": "aaa-id-for-testing-aaa-rg",
     "subscription_id": "f5c96a5a-b3f6-470f-8a0c-817cf3833928",
     "match_processing_behavior": "Continue",
-    "order": 2,
+    "order": 1,
     "actions": [
       {
-        "name": "RouteConfigurationOverride",
+        "name": "ModifyResponseHeader",
         "parameters": {
-          "type_name": "DeliveryRuleRouteConfigurationOverrideActionParameters"
+          "header_action": "Overwrite",
+          "header_name": "strict-transport-security",
+          "type_name": "DeliveryRuleHeaderActionParameters",
+          "value": "max-age=31536000; includesubdomains"
         }
-      }
-    ],
-    "conditions": [
+      },
       {
-        "name": "UrlPath",
+        "name": "ModifyResponseHeader",
         "parameters": {
-          "match_values": [
-            ".auth"
-          ],
-          "negate_condition": false,
-          "operator": "BeginsWith",
-          "transforms": [],
-          "type_name": "DeliveryRuleUrlPathMatchConditionParameters"
+          "header_action": "Overwrite",
+          "header_name": "x-content-type-options",
+          "type_name": "DeliveryRuleHeaderActionParameters",
+          "value": "nosniff"
+        }
+      },
+      {
+        "name": "ModifyResponseHeader",
+        "parameters": {
+          "header_action": "Append",
+          "header_name": "X-Frame-Options",
+          "type_name": "DeliveryRuleHeaderActionParameters",
+          "value": "DENY"
+        }
+      },
+      {
+        "name": "ModifyResponseHeader",
+        "parameters": {
+          "header_action": "Overwrite",
+          "header_name": "x-xss-protection",
+          "type_name": "DeliveryRuleHeaderActionParameters",
+          "value": "1; mode=block"
+        }
+      },
+      {
+        "name": "ModifyResponseHeader",
+        "parameters": {
+          "header_action": "Append",
+          "header_name": "Content-Security-Policy",
+          "type_name": "DeliveryRuleHeaderActionParameters",
+          "value": "frame-ancestors 'none'"
         }
       }
     ],
+    "conditions": [],
     "state": "present"
   }
 }
