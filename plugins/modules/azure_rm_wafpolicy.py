@@ -2,7 +2,7 @@
 #
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 #
-# Python SDK Reference: https://learn.microsoft.com/en-us/python/api/azure-mgmt-cdn/azure.mgmt.cdn.operations.policiesoperations?view=azure-python
+# Python SDK Reference: https://learn.microsoft.com/en-us/python/api/azure-mgmt-frontdoor/azure.mgmt.frontdoor.operations.policiesoperations?view=azure-python
 #
 
 from __future__ import absolute_import, division, print_function
@@ -75,8 +75,11 @@ id:
 from ansible_collections.azure.azcollection.plugins.module_utils.azure_rm_common import AzureRMModuleBase
 
 try:
-    from azure.mgmt.cdn.models import CdnWebApplicationFirewallPolicy, PolicySettings, RateLimitRuleList, RateLimitRule, CustomRuleList, ManagedRuleSetList
-    from azure.mgmt.cdn import CdnManagementClient
+    # from azure.mgmt.cdn.models import CdnWebApplicationFirewallPolicy, PolicySettings, Sku, \
+    #     RateLimitRuleList, RateLimitRule, CustomRuleList, ManagedRuleSetList, CustomRule #, ManagedRuleSet
+    from azure.mgmt.frontdoor import FrontDoorManagementClient
+    from azure.mgmt.frontdoor.models import WebApplicationFirewallPolicy, PolicySettings, CustomRuleList, \
+        Sku, CustomRule, MatchCondition, ManagedRuleSet, ManagedRuleSetList, ManagedRuleOverride, ManagedRuleExclusion
 
 except ImportError as ec:
     # This is handled in azure_rm_common
@@ -84,20 +87,16 @@ except ImportError as ec:
 
 def wafpolicy_to_dict(wafpolicy):
     return dict(
-        deployment_status=wafpolicy.deployment_status,
-        enabled_state = wafpolicy.enabled_state,
-        forwarding_protocol = wafpolicy.forwarding_protocol,
-        https_redirect = wafpolicy.https_redirect,
+        custom_rules = wafpolicy.custom_rules,
+        etag=wafpolicy.etag,
         id = wafpolicy.id,
-        link_to_default_domain = wafpolicy.link_to_default_domain,
-        name=wafpolicy.name,
-        origin_group_id=wafpolicy.origin_group.id,
-        origin_path=wafpolicy.origin_path,
-        patterns_to_match=wafpolicy.patterns_to_match,
+        location = wafpolicy.location,
+        managed_rules = wafpolicy.managed_rules,
+        name = wafpolicy.name,
+        policy_settings = wafpolicy.policy_settings,
         provisioning_state=wafpolicy.provisioning_state,
-        query_string_caching_behavior=wafpolicy.query_string_caching_behavior,
-        rule_sets=wafpolicy.rule_sets,
-        supported_protocols=wafpolicy.supported_protocols,
+        resource_state=wafpolicy.resource_state,
+        sku = wafpolicy.sku.name,
         type=wafpolicy.type
     )
 
@@ -105,6 +104,7 @@ class AzureRMWAFPolicy(AzureRMModuleBase):
 
     def __init__(self):
         self.module_arg_spec = dict(
+            # TODO: Redo all of this for the FD WAF Version
             custom_rules=dict(
                 type='dict',
                 options=dict(
@@ -113,7 +113,18 @@ class AzureRMWAFPolicy(AzureRMModuleBase):
                         options=dict(
                             name=dict(type='str'),
                             enabled_state=dict(type='str',choices=['Enabled', 'Disabled']),
-                            priority=dict(type='int'),
+                            priority=dict(type='int', required=True),
+                            rule_type=dict(type='str', choices=["MatchRule", "RateLimitRule"]),
+                            rate_limit_duration_in_minutes=dict(type='int', default=1),
+                            rate_limit_threshold=dict(type='int'),
+                            test=dict(type='int', default=1),
+                            group_by=dict(
+                                type='list',
+                                options=dict(
+                                    variable_name=dict(type='str', default="None", choices=["SocketAddr", "GeoLocation", "None"])
+                                )
+                            ),
+                            action=dict(type='str', choices=["Allow", "Block", "Log", "Redirect", "AnomalyScoring", "JSChallenge"]),
                             match_conditions=dict(
                                 type='list',
                                 options=dict(
@@ -124,8 +135,7 @@ class AzureRMWAFPolicy(AzureRMModuleBase):
                                     match_value=dict(type='list'),
                                     transforms=dict(type='list')
                                 )
-                            ),
-                            action=dict(type='str', choices=["Allow", "Block", "Log", "Redirect"])
+                            )
                         )
                     )
                 )
@@ -170,9 +180,13 @@ class AzureRMWAFPolicy(AzureRMModuleBase):
                 options=dict(
                     enabled_state=dict(type='str',choices=['Enabled','Disabled']),
                     mode=dict(type='str',choices=['Detection','Prevention']),
-                    default_redirect_url=dict(type='str'),
-                    default_custom_block_response_status_code=dict(type='int',choices=[200,403,405,406,429]),
-                    default_custom_block_response_body=dict(type='str')
+                    redirect_url=dict(type='str'),
+                    request_body_check=dict(type='str'),
+                    custom_block_response_status_code=dict(type='int',choices=[200,403,405,406,429]),
+                    custom_block_response_body=dict(type='str'),
+                    javascript_challenge_expiration_in_minutes=dict(type='int'),
+                    state=dict(type='str',choices=['Enabled','Disabled']),
+                    scrubbing_rules=dict(type='str')
                 )
             ),
             rate_limit_rules=dict(
@@ -274,8 +288,34 @@ class AzureRMWAFPolicy(AzureRMModuleBase):
 
             else:
                 self.log('Results : {0}'.format(response))
-                
-                if response['enabled_state'] != self.enabled_state and self.enabled_state:
+
+                if response['location'] != self.location and self.location:
+                    to_be_updated = True
+                if response['sku'] != self.sku and self.sku:
+                    to_be_updated = True
+                if response['policy_settings'].custom_block_response_body != self.policy_settings['custom_block_response_body']:
+                    to_be_updated = True
+                if response['policy_settings'].custom_block_response_status_code != self.policy_settings['custom_block_response_status_code']:
+                    to_be_updated = True
+                if response['policy_settings'].enabled_state != self.policy_settings['enabled_state']:
+                    to_be_updated = True
+                if response['policy_settings'].javascript_challenge_expiration_in_minutes != self.policy_settings['javascript_challenge_expiration_in_minutes']:
+                    to_be_updated = True
+                if response['policy_settings'].mode != self.policy_settings['mode']:
+                    to_be_updated = True
+                if response['policy_settings'].redirect_url != self.policy_settings['redirect_url']:
+                    to_be_updated = True
+                if response['policy_settings'].request_body_check != self.policy_settings['request_body_check']:
+                    to_be_updated = True
+                if response['policy_settings'].state != self.policy_settings['state']:
+                    to_be_updated = True
+                if response['policy_settings'].scrubbing_rules != self.policy_settings['scrubbing_rules']:
+                    to_be_updated = True
+                if response['managed_rules'] != self.managed_rules and self.managed_rules:
+                    to_be_updated = True
+                if response['custom_rules'] != self.custom_rules and self.custom_rules:
+                    to_be_updated = True
+                if response['resource_state'] != self.resource_state and self.resource_state:
                     to_be_updated = True
 
                 if to_be_updated:
@@ -308,86 +348,107 @@ class AzureRMWAFPolicy(AzureRMModuleBase):
         :return: deserialized Azure WAF Policy instance state dictionary
         '''
         self.log("Creating the Azure WAF Policy instance {0}".format(self.name))
-        policy_settings = PolicySettings(
-            enabled_state=self.policy_settings['enabled_state'],
-            mode=self.policy_settings['mode'],
-            default_redirect_url=self.policy_settings['default_redirect_url'],
-            default_custom_block_response_status_code=self.policy_settings['default_custom_block_response_status_code'],
-            default_custom_block_response_body=self.policy_settings['default_custom_block_response_body']
-        )
-
-        rules = []
-        for rule in self.rate_limit_rules:
-            single_rule = RateLimitRule(
-                name=rule.name, # str
-                priority=rule.priority, # int
-                match_conditions='' # List[MatchCondition]
-                # action: str | ActionType, 
-                # rate_limit_threshold: int, 
-                # rate_limit_duration_in_minutes: int, 
-                # enabled_state: str | CustomRuleEnabledState
-            )
-            rules.append(single_rule)
-        rate_limit_rules = RateLimitRuleList(
-            rules=rules
-        )
-
-        rules = []
-        for rule in self.custom_rules:
-            single_rule = RateLimitRule(
-                name=rule.name, # str
-                priority=rule.priority, # int
-                match_conditions='' # List[MatchCondition]
-                # action: str | ActionType, 
-                # rate_limit_threshold: int, 
-                # rate_limit_duration_in_minutes: int, 
-                # enabled_state: str | CustomRuleEnabledState
-            )
-            rules.append(single_rule)
-        custom_rules = CustomRuleList(
-            rules=rules
-        )
-
-        rules = []
-        for rule in self.managed_rules:
-            single_rule = RateLimitRule(
-                name=rule.name, # str
-                priority=rule.priority, # int
-                match_conditions='' # List[MatchCondition]
-                # action: str | ActionType, 
-                # rate_limit_threshold: int, 
-                # rate_limit_duration_in_minutes: int, 
-                # enabled_state: str | CustomRuleEnabledState
-            )
-            rules.append(single_rule)
-        managed_rules =  ManagedRuleSetList(
-            rules=rules
-        )
-
-        extended_properties = {}
-        
-        parameters = CdnWebApplicationFirewallPolicy(
-            location=self.location,
-            sku=self.sku,
-            tags=self.tags,
-            policy_settings=policy_settings,
-            rate_limit_rules=rate_limit_rules, 
-            custom_rules=custom_rules,
-            managed_rules=managed_rules,
-            extended_properties=extended_properties
-        )
         
         try:
+            policy_settings = PolicySettings(
+                enabled_state=self.policy_settings['enabled_state'],
+                mode=self.policy_settings['mode'],
+                redirect_url=self.policy_settings['redirect_url'],
+                custom_block_response_status_code=self.policy_settings['custom_block_response_status_code'],
+                default_custom_block_response_body=self.policy_settings['custom_block_response_body'],
+                request_body_check=self.policy_settings['request_body_check'],
+                javascript_challenge_expiration_in_minutes=self.policy_settings['javascript_challenge_expiration_in_minutes'],
+                state=self.policy_settings['state'],
+                scrubbing_rules=self.policy_settings['scrubbing_rules']
+            )
+
+            custom_rules = None
+            if self.custom_rules:
+                rules = []
+                for rule in self.custom_rules['rules']:
+                    conditions = None
+                    if rule['match_conditions']:
+                        conditions = []
+                        for condition in rule['match_conditions']:
+                            mc = MatchCondition(
+                                match_variable=condition['match_variable'],
+                                selector=condition['selector'],
+                                operator=condition['operator'],
+                                negate_condition=condition['negate_condition'],
+                                match_value=condition['match_value'],
+                                transforms=condition['transforms']
+                            )
+                            conditions.append(mc)
+                    single_rule = CustomRule(
+                        name=rule['name'],
+                        priority=rule['priority'],
+                        enabled_state='Enabled' if 'enabled_state' not in rule.keys() else rule['enabled_state'],
+                        rule_type=rule['rule_type'],
+                        rate_limit_duration_in_minutes=rule['rate_limit_duration_in_minutes'],
+                        rate_limit_threshold=rule['rate_limit_threshold'],
+                        group_by=None if 'group_by' not in rule.keys() else rule['group_by'],
+                        match_conditions=conditions,
+                        action=rule['action']
+                    )
+                    rules.append(single_rule)
+                custom_rules = CustomRuleList(
+                    rules=rules
+                )
+
+            managed_rules = None
+            if self.managed_rules:
+                rules = []
+                for rule in self.managed_rules['managed_rule_sets']:
+                    conditions = None
+                    if rule['rule_group_overrides']:
+                        overrides = []
+                        for override in rule['rule_group_overrides']:
+                            exclusions = []
+                            if override['exclusions']:
+                                for exclusion in override['exclusions']:
+                                    mre = ManagedRuleExclusion(
+                                        match_variable=exclusion['match_variable'],
+                                        selector_match_operator=exclusion['selector_match_operator'],
+                                        selector=exclusion['selector']
+                                    )
+                                    exclusions.append(exclusion)
+                            mro = ManagedRuleOverride(
+                                rule_id=override['rule_id'],
+                                enabled_state=override['enabled_state'],
+                                action=override['action'],
+                                exclusions=exclusions
+                            )
+                            overrides.append(mro)
+                    single_rule = ManagedRuleSet(
+                        rule_set_type=rule['rule_set_type'],
+                        rule_set_version=rule['rule_set_version'],
+                        rule_set_action=rule['rule_set_action'],
+                        exclusions=[],
+                        rule_group_overrides=overrides
+                    )
+                    rules.append(single_rule)
+                managed_rules =  ManagedRuleSetList(
+                    managed_rule_sets=rules
+                )
+
+            parameters = WebApplicationFirewallPolicy(
+                location=self.location,
+                sku=Sku(name=self.sku),
+                policy_settings=policy_settings,
+                custom_rules=custom_rules,
+                managed_rules=managed_rules
+            )
+
             poller = self.wafpolicy_client.policies.begin_create_or_update(
-                resource_group_name=self.resource_group_name,
+                resource_group_name=self.resource_group,
                 policy_name=self.name,
-                cdn_web_application_firewall_policy=parameters
+                parameters=parameters
             )
             response = self.get_poller_result(poller)
             return wafpolicy_to_dict(response)
         except Exception as exc:
             self.log('Error attempting to create Azure WAF Policy instance.')
-            self.fail("Error Creating Azure WAF Policy instance: {0}".format(exc.message))
+            self.fail("Error Creating Azure WAF Policy instance: {0}".format(exc.args[0]))
 
     def update_wafpolicy(self):
         '''
@@ -446,17 +507,14 @@ class AzureRMWAFPolicy(AzureRMModuleBase):
 
     def get_wafpolicy_client(self):
         if not self.wafpolicy_client:
-            self.wafpolicy_client = self.get_mgmt_svc_client(CdnManagementClient,
+            self.wafpolicy_client = self.get_mgmt_svc_client(FrontDoorManagementClient,
                                                        base_url=self._cloud_environment.endpoints.resource_manager,
-                                                       api_version='2023-05-01')
+                                                       api_version='2019-05-01')
         return self.wafpolicy_client
 
 def main():
     """Main execution"""
     AzureRMWAFPolicy()
-    # TODO: Clean this up
-    # x = CdnManagementClient()
-    # x.policies.get()
 
 if __name__ == '__main__':
     main()
