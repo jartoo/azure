@@ -79,7 +79,8 @@ try:
     #     RateLimitRuleList, RateLimitRule, CustomRuleList, ManagedRuleSetList, CustomRule #, ManagedRuleSet
     from azure.mgmt.frontdoor import FrontDoorManagementClient
     from azure.mgmt.frontdoor.models import WebApplicationFirewallPolicy, PolicySettings, CustomRuleList, \
-        Sku, CustomRule, MatchCondition, ManagedRuleSet, ManagedRuleSetList, ManagedRuleOverride, ManagedRuleExclusion
+        Sku, CustomRule, MatchCondition, ManagedRuleSet, ManagedRuleSetList, ManagedRuleOverride, \
+        ManagedRuleExclusion, TagsObject
 
 except ImportError as ec:
     # This is handled in azure_rm_common
@@ -282,7 +283,7 @@ class AzureRMWAFPolicy(AzureRMModuleBase):
                 self.log("Need to create the WAF Policy")
 
                 if not self.check_mode:
-                    new_results = self.create_wafpolicy()
+                    new_results = self.create_update_wafpolicy()
                     self.results['id'] = new_results['id']
                 self.results['changed'] = True
 
@@ -293,9 +294,9 @@ class AzureRMWAFPolicy(AzureRMModuleBase):
                     to_be_updated = True
                 if response['sku'] != self.sku and self.sku:
                     to_be_updated = True
-                if response['policy_settings'].custom_block_response_body != self.policy_settings['custom_block_response_body']:
+                if response['policy_settings'].custom_block_response_body != self.policy_settings['custom_block_response_body'] and self.policy_settings['custom_block_response_body']:
                     to_be_updated = True
-                if response['policy_settings'].custom_block_response_status_code != self.policy_settings['custom_block_response_status_code']:
+                if response['policy_settings'].custom_block_response_status_code != self.policy_settings['custom_block_response_status_code'] and self.policy_settings['custom_block_response_status_code']:
                     to_be_updated = True
                 if response['policy_settings'].enabled_state != self.policy_settings['enabled_state']:
                     to_be_updated = True
@@ -303,18 +304,18 @@ class AzureRMWAFPolicy(AzureRMModuleBase):
                     to_be_updated = True
                 if response['policy_settings'].mode != self.policy_settings['mode']:
                     to_be_updated = True
-                if response['policy_settings'].redirect_url != self.policy_settings['redirect_url']:
+                if response['policy_settings'].redirect_url != self.policy_settings['redirect_url'] and self.policy_settings['redirect_url']:
                     to_be_updated = True
-                if response['policy_settings'].request_body_check != self.policy_settings['request_body_check']:
+                if response['policy_settings'].request_body_check != self.policy_settings['request_body_check'] and self.policy_settings['request_body_check']:
                     to_be_updated = True
-                if response['policy_settings'].state != self.policy_settings['state']:
+                if response['policy_settings'].state != self.policy_settings['state'] and self.policy_settings['state']:
                     to_be_updated = True
-                if response['policy_settings'].scrubbing_rules != self.policy_settings['scrubbing_rules']:
+                if response['policy_settings'].scrubbing_rules != self.policy_settings['scrubbing_rules'] and self.policy_settings['scrubbing_rules']:
                     to_be_updated = True
-                if response['managed_rules'] != self.managed_rules and self.managed_rules:
+                if response['managed_rules'].managed_rule_sets != self.managed_rules and self.managed_rules['managed_rule_sets']:
                     to_be_updated = True
-                if response['custom_rules'] != self.custom_rules and self.custom_rules:
-                    to_be_updated = True
+                # if response['custom_rules'].rules != self.custom_rules['rules'] and self.custom_rules:
+                #     to_be_updated = True
                 if response['resource_state'] != self.resource_state and self.resource_state:
                     to_be_updated = True
 
@@ -322,7 +323,7 @@ class AzureRMWAFPolicy(AzureRMModuleBase):
                     self.log("Need to update the WAF Policy")
 
                     if not self.check_mode:
-                        new_results = self.update_wafpolicy()
+                        new_results = self.create_update_wafpolicy()
                         self.results['id'] = new_results['id']
 
                     self.results['changed'] = True
@@ -341,7 +342,7 @@ class AzureRMWAFPolicy(AzureRMModuleBase):
 
         return self.results
 
-    def create_wafpolicy(self):
+    def create_update_wafpolicy(self):
         '''
         Creates a Azure WAF Policy.
 
@@ -447,27 +448,8 @@ class AzureRMWAFPolicy(AzureRMModuleBase):
             response = self.get_poller_result(poller)
             return wafpolicy_to_dict(response)
         except Exception as exc:
-            self.log('Error attempting to create Azure WAF Policy instance.')
-            self.fail("Error Creating Azure WAF Policy instance: {0}".format(exc.args[0]))
-
-    def update_wafpolicy(self):
-        '''
-        Updates an Azure WAF Policy.
-
-        :return: deserialized Azure WAF Policy instance state dictionary
-        '''
-        self.log("Updating the Azure WAF Policy instance {0}".format(self.name))
-
-        # TODO: Add query_string_caching_behavior: str | AfdQueryStringCachingBehavior | None = None
-        parameters = ''
-
-        try:
-            poller = self.wafpolicy_client.wafpolicys.begin_update(resource_group_name=self.resource_group, profile_name=self.profile_name, endpoint_name=self.endpoint_name, wafpolicy_name=self.name, wafpolicy_update_properties=parameters)
-            response = self.get_poller_result(poller)
-            return wafpolicy_to_dict(response)
-        except Exception as exc:
-            self.log('Error attempting to update Azure WAF Policy instance.')
-            self.fail("Error updating Azure WAF Policy instance: {0}".format(exc.message))
+            self.log('Error attempting to create/update Azure WAF Policy instance.')
+            self.fail("Error Creating/Updating Azure WAF Policy instance: {0}".format(exc.args[0]))
 
     def delete_wafpolicy(self):
         '''
@@ -477,7 +459,7 @@ class AzureRMWAFPolicy(AzureRMModuleBase):
         '''
         self.log("Deleting the WAF Policy {0}".format(self.name))
         try:
-            poller = self.wafpolicy_client.wafpolicys.begin_delete(resource_group_name=self.resource_group, profile_name=self.profile_name, endpoint_name=self.endpoint_name, wafpolicy_name=self.name)
+            poller = self.wafpolicy_client.policies.begin_delete(resource_group_name=self.resource_group, policy_name=self.name)
             self.get_poller_result(poller)
             return True
         except Exception as e:

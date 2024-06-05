@@ -6,5 +6,6 @@ venv*
 .venv*
 .vscode
 ansible_collections/
+module_args/
 .idea/
 tests/integration/inventory

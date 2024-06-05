@@ -1,6 +1,8 @@
 #!/usr/bin/python
 #
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+#
+# Python SDK Reference: https://learn.microsoft.com/en-us/python/api/azure-mgmt-cdn/azure.mgmt.cdn.operations.rulesetsoperations?view=azure-python
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
@@ -196,6 +198,8 @@ class AzureRMRuleSet(AzureRMModuleBase):
 
         response = self.get_ruleset()
 
+        self.results['changed'] = False
+
         if self.state == 'present':
 
             if not response:
@@ -212,7 +216,7 @@ class AzureRMRuleSet(AzureRMModuleBase):
 
         elif self.state == 'absent':
             if not response:
-                self.fail("Rule Set {0} does not exist.".format(self.name))
+                self.log("Rule Set {0} does not exist.".format(self.name))
             else:
                 self.log("Need to delete the Rule Set")
                 self.results['changed'] = True
@@ -232,13 +236,14 @@ class AzureRMRuleSet(AzureRMModuleBase):
         self.log("Creating the Azure Rule Set instance {0}".format(self.name))
 
         try:
-            poller = self.ruleset_client.rule_sets.create(
+            response = self.ruleset_client.rule_sets.create(
                 resource_group_name=self.resource_group,
                 profile_name=self.profile_name,
                 rule_set_name=self.name
             )
-            response = self.get_poller_result(poller)
             return ruleset_to_dict(response)
+        except AttributeError as err:
+            self.log("Attribute error creating Azure Rule Set instance: {0}".format(err.args[0]))
         except Exception as exc:
             self.log('Error attempting to create Azure Rule Set instance.')
             self.fail("Error Creating Azure Rule Set instance: {0}".format(exc.message))

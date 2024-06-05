@@ -26,6 +26,10 @@ options:
             - Name of the routing rule.
         required: true
         type: str
+    origin_group:
+        description:
+            - The origin group name.
+        type: str
     profile_name:
         description:
             - Name of the Azure Front Door Standard or Azure Front Door Premium profile which is unique within the resource group.
@@ -87,10 +91,6 @@ options:
                 description:
                     - whether this route will be linked to the default endpoint domain. Known values are: "Enabled" and "Disabled".
                 type: str
-            origin_group:
-                description:
-                    - The origin group name.
-                type: str
             origin_path:
                 description:
                     - A directory path on the origin that AzureFrontDoor can use to retrieve content from, e.g. contoso.cloudapp.net/originpath.
@@ -128,6 +128,7 @@ EXAMPLES = '''
   azure_rm_afdroute:
     name: myRoute
     endpoint_name: myEndpoint
+    origin_group: myOriginGroup
     profile_name: myProfile
     resource_group_name: myResourceGroup
     state: present
@@ -135,7 +136,6 @@ EXAMPLES = '''
         enabled_state: Disabled
         forwarding_protocol: HttpsOnly
         https_redirect: Enabled
-        origin_group_name: myOriginGroup
         patterns_to_match:
             - "/*"
         rule_sets:
@@ -149,6 +149,7 @@ EXAMPLES = '''
   azure_rm_afdroute:
     name: myRoute
     endpoint_name: myEndpoint
+    origin_group: myOriginGroup
     profile_name: myProfile
     resource_group_name: myResourceGroup
     state: absent
@@ -211,6 +212,9 @@ class AzureRMRoute(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
+            origin_group=dict(
+                type='str'
+            ),
             route=dict(
                 type='dict',
                 options=dict(
@@ -221,12 +225,7 @@ class AzureRMRoute(AzureRMModuleBase):
                             id=dict(type='str'),
                             is_active=dict(type='bool'),
                             resource_group=dict(type='str')
-                        ),
-                        required=False
-                    ),
-                    origin_group=dict(
-                        type='str',
-                        required=True
+                        )
                     ),
                     origin_path=dict(
                         type='str'
@@ -286,8 +285,9 @@ class AzureRMRoute(AzureRMModuleBase):
 
         self.route = None
         self.origin_group_id = None
-
+        
         self.name = None
+        self.origin_group = None
         self.endpoint_name = None
         self.profile_name = None
         self.resource_group = None
@@ -296,7 +296,7 @@ class AzureRMRoute(AzureRMModuleBase):
         self.route_client = None
 
         required_if = [
-            # ('state', 'present', ['host_name']) # TODO: Flesh these out
+            ('state', 'present', ['origin_group'])
         ]
 
         self.results = dict(changed=False)
@@ -324,17 +324,18 @@ class AzureRMRoute(AzureRMModuleBase):
         # Get the existing resource
         response = self.get_route()
 
-        # Get the Origin Group ID
-        self.origin_group_id = self.get_origin_group_id()
-        if self.origin_group_id is False:
-            self.fail("Could not obtain Origin Group ID from {0}".format(self.origin_group))
         
-        # Populate the rule_set_ids
-        convert_rules = self.get_rule_set_ids()
-        if not convert_rules:
-            self.fail("Failed to convert the Rule Set names to IDs")
 
         if self.state == 'present':
+            # Get the Origin Group ID
+            self.origin_group_id = self.get_origin_group_id()
+            if self.origin_group_id is False:
+                self.fail("Could not obtain Origin Group ID from {0}".format(self.origin_group))
+
+            # Populate the rule_set_ids
+            convert_rules = self.get_rule_set_ids()
+            if not convert_rules:
+                self.fail("Failed to convert the Rule Set names to IDs")
 
             if not response:
                 self.log("Need to create the Route")
@@ -556,9 +557,9 @@ class AzureRMRoute(AzureRMModuleBase):
         :return: ID for the Origin Group.
         '''
         self.log(
-            "Obtaining ID for Origin Group {0}".format(self.route['origin_group']))
+            "Obtaining ID for Origin Group {0}".format(self.origin_group))
         try:
-            response = self.route_client.afd_origin_groups.get(resource_group_name=self.resource_group, profile_name=self.profile_name, origin_group_name=self.route['origin_group'])
+            response = self.route_client.afd_origin_groups.get(resource_group_name=self.resource_group, profile_name=self.profile_name, origin_group_name=self.origin_group)
             self.log("Response : {0}".format(response))
             self.log("Origin Group ID found : {0} found".format(response.id))
             return response.id
