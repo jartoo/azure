@@ -11,15 +11,11 @@ __metaclass__ = type
 DOCUMENTATION = '''
 ---
 module: azure_rm_afdendpoint_info
-
-version_added: ""
-
+version_added: "2.4.0"
 short_description: Get Azure Front Door Endpoint facts to be used with Standard or Premium Frontdoor Service
-
 description:
     - Get facts for a specific Azure Front Door (AFD) Endpoint or all AFD Endpoints.
-    This differs from the Front Door classic service and only is intended to be used by the
-    Standard or Premium service offering.
+    - This differs from the Front Door classic service and only is intended to be used by the Standard or Premium service offering.
 
 options:
     resource_group:
@@ -95,7 +91,7 @@ afdendpoints:
             description:
                 - ID of the AFD Endpoint.
             type: str
-            sample: "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourcegroups/myCDN/providers/Microsoft.Cdn/profiles/myProfile/endpoints/myEndpoint1"
+            sample: "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourcegroups/myCDN/providers/Microsoft.Cdn/profiles/myProf/endpoints/myEndpoint1"
         location:
             description:
                 - Location of the AFD Endpoint.
@@ -192,7 +188,8 @@ class AzureRMAFDEndpointInfo(AzureRMModuleBase):
         for key in self.module_args:
             setattr(self, key, kwargs[key])
 
-        self.endpoint_client = self.get_mgmt_svc_client(CdnManagementClient,
+        self.endpoint_client = self.get_mgmt_svc_client(
+            CdnManagementClient,
             base_url=self._cloud_environment.endpoints.resource_manager,
             api_version='2023-05-01')
 

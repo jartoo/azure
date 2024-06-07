@@ -7,33 +7,37 @@
 # TODO: Name check the URL
 #
 from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 DOCUMENTATION = '''
 ---
 module: azure_rm_afdendpoint
-
-version_added: ""
-
+version_added: "2.4.0"
 short_description: Manage an Azure Front Door Endpoint to be used with Standard or Premium Frontdoor
-
 description:
-    - Create, update and delete an Azure Front Door (AFD) Endpoint to be used by a Front Door Service Profile
-    created using azure_rm_cdnprofile.  This differs from the Front Door classic service and only is intended to be used by
-    the Standard or Premium service offering.
+    - Create, update and delete an Azure Front Door (AFD) Endpoint to be used by a Front Door Service Profile created using azure_rm_cdnprofile.
+    - This differs from the Front Door classic service and only is intended to be used by the Standard or Premium service offering.
 
 options:
     auto_generated_domain_name_label_scope:
         description:
-            - Indicates the endpoint name reuse scope. Known values are: "TenantReuse", "SubscriptionReuse", 
-            "ResourceGroupReuse", and "NoReuse". Cannot be used to update an existing Endpoint at this time.
+            - Indicates the endpoint name reuse scope. Cannot be used to update an existing Endpoint at this time.
         default: TenantReuse
         type: str
+        choices:
+            - TenantReuse
+            - SubscriptionReuse
+            - ResourceGroupReuse
+            - NoReuse
     enabled_state:
         description:
             - Whether to enable use of this rule.
         default: Enabled
         type: str
+        choices:
+            - Enabled
+            - Disabled
     location:
         description:
             - Valid Azure location. Defaults to location of the resource group. Cannot be used to update an existing Endpoint at this time.
@@ -41,17 +45,17 @@ options:
     name:
         description:
             - Name of the AFD Endpoint.
-        required: true
+        required: True
         type: str
     profile_name:
         description:
             - Name of the AFD Profile where the Endpoint will be attached to.
-        required: true
+        required: True
         type: str
     resource_group:
         description:
             - Name of a resource group where the Azure Front Door Endpoint exists or will be created.
-        required: true
+        required: True
         type: str
     state:
         description:
@@ -133,12 +137,12 @@ class AzureRMEndpoint(AzureRMModuleBase):
         self.module_arg_spec = dict(
             auto_generated_domain_name_label_scope=dict(
                 type='str',
-                default = 'TenantReuse',
+                default='TenantReuse',
                 choices=["TenantReuse", "SubscriptionReuse", "ResourceGroupReuse", "NoReuse"]
             ),
             enabled_state=dict(
                 type='str',
-                default = 'Enabled',
+                default='Enabled',
                 choices=['Enabled', 'Disabled']
             ),
             location=dict(
@@ -162,7 +166,7 @@ class AzureRMEndpoint(AzureRMModuleBase):
                 choices=['present', 'absent']
             )
         )
-        
+
         self.auto_generated_domain_name_label_scope = None
         self.enabled_state = None
         self.location = None
@@ -177,9 +181,10 @@ class AzureRMEndpoint(AzureRMModuleBase):
 
         self.results = dict(changed=False)
 
-        super(AzureRMEndpoint, self).__init__(derived_arg_spec=self.module_arg_spec,
-                                                supports_check_mode=True,
-                                                supports_tags=True)
+        super(AzureRMEndpoint, self).__init__(
+            derived_arg_spec=self.module_arg_spec,
+            supports_check_mode=True,
+            supports_tags=True)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
@@ -210,12 +215,12 @@ class AzureRMEndpoint(AzureRMModuleBase):
 
                 self.results['changed'] = True
                 return self.results
-            
+
             else:
                 self.log('Results : {0}'.format(response))
-                self.results['id'] = response['id']                
+                self.results['id'] = response['id']
                 self.results['host_name'] = response['host_name']
-                
+
                 update_tags, self.tags = self.update_tags(response['tags'])
 
                 if update_tags:
@@ -224,7 +229,7 @@ class AzureRMEndpoint(AzureRMModuleBase):
                 if response['provisioning_state'] == "Succeeded":
                     if response['enabled_state'] != self.enabled_state:
                         to_be_updated = True
-                    
+
                     if self.location.lower() != response['location'].lower() and self.location:
                         # Location is not currently implemented in begin_update()
                         self.log("AFD Endpoint locations changes are not idempotent, please delete and recreate the Endpoint.")
@@ -330,7 +335,10 @@ class AzureRMEndpoint(AzureRMModuleBase):
         self.log(
             "Checking if the AFD Endpoint {0} is present".format(self.name))
         try:
-            response = self.endpoint_client.afd_endpoints.get(resource_group_name=self.resource_group, profile_name=self.profile_name, endpoint_name=self.name)
+            response = self.endpoint_client.afd_endpoints.get(
+                resource_group_name=self.resource_group,
+                profile_name=self.profile_name,
+                endpoint_name=self.name)
             self.log("Response : {0}".format(response))
             self.log("AFD Endpoint : {0} found".format(response.name))
             return endpoint_to_dict(response)
@@ -340,7 +348,8 @@ class AzureRMEndpoint(AzureRMModuleBase):
 
     def get_endpoint_client(self):
         if not self.endpoint_client:
-            self.endpoint_client = self.get_mgmt_svc_client(CdnManagementClient,
+            self.endpoint_client = self.get_mgmt_svc_client(
+                CdnManagementClient,
                 base_url=self._cloud_environment.endpoints.resource_manager,
                 api_version='2023-05-01')
         return self.endpoint_client
