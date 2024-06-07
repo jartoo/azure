@@ -12,18 +12,21 @@ __metaclass__ = type
 DOCUMENTATION = '''
 ---
 module: azure_rm_afdorigin_info
-
-version_added: ""
-
+version_added: "2.4.0"
 short_description: Get Azure Front Door Origin facts to be used with Standard or Premium Frontdoor Service
-
 description:
-    - Get facts for a specific Azure Front Door (AFD) Origin or all AFD Origins.  This differs from the Front Door classic service and only is intended to be used by the Standard or Premium service offering.
+    - Get facts for a specific Azure Front Door (AFD) Origin or all AFD Origins.
+    - This differs from the Front Door classic service and only is intended to be used by the Standard or Premium service offering.
 
 options:
     resource_group:
         description:
             - Name of the resource group where this AFD Profile belongs.
+        required: true
+        type: str
+    origin_group_name:
+        description:
+            - Name of the origin group which is unique within the profile.
         required: true
         type: str
     profile_name:
@@ -61,7 +64,7 @@ afdorigins:
     description: List of AFD Origins.
     returned: always
     type: complex
-    contains:        
+    contains:
         azure_origin:
             description:
                 - Resource reference to the AFD origin resource.
@@ -73,34 +76,33 @@ afdorigins:
             sample: NotStarted
         enabled_state:
             description:
-                - Whether to enable health probes to be made against backends defined under backend pools. Health probes can only be disabled if there is a single enabled backend in single enabled backend pool.
+                - Whether to enable health probes to be made against backends defined under backend pools.
+                - Health probes can only be disabled if there is a single enabled backend in single enabled backend pool.
             type: str
-            choices:
-                - Enabled
-                - Disabled
+            sample: Enabled
         host_name:
             description:
-                - The address of the origin. Domain names, IPv4 addresses, and IPv6 addresses are supported. This should be unique across all origins in an endpoint.
+                - The address of the origin. Domain names, IPv4 addresses, and IPv6 addresses are supported.
+                - This should be unique across all origins in an endpoint.
             type: str
         http_port:
             description:
                 - The value of the HTTP port. Must be between 1 and 65535.
-            default: 80
             type: int
+            sample: 80
         https_port:
             description:
                 - The value of the HTTPS port. Must be between 1 and 65535.
-            default: 443
             type: int
+            sample: 443
         id:
             description:
                 - ID of the AFD Origin.
             type: str
-            sample: "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourcegroups/myCDN/providers/Microsoft.Cdn/profiles/myProfile/origingroups/myOriginGroup1/origins/myOrigin1"
+            sample: "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxx/resourcegroups/myRG/providers/Microsoft.Cdn/profiles/myProf/origingroups/myOG/origins/myO"
         name:
             description:
                 - Name of the AFD Origin.
-            required: true
             type: str
         origin_group_name:
             description:
@@ -108,16 +110,18 @@ afdorigins:
             type: str
         origin_host_header:
             description:
-                - The host header value sent to the origin with each request. If you leave this blank, the request hostname determines this value. Azure Front Door origins, such as Web Apps, Blob Storage, and Cloud Services require this host header value to match the origin hostname by default. This overrides the host header defined at the AFD Endpoint.
+                - The host header value sent to the origin with each request. If you leave this blank, the request hostname determines this value.
+                - Azure Front Door origins, such as Web Apps, Blob Storage, and Cloud Services require this host header value to match the origin
+                - hostname by default. This overrides the host header defined at the AFD Endpoint.
             type: str
         priority:
             description:
-                - Priority of origin in given origin group for load balancing. Higher priorities will not be used for load balancing if any lower priority origin is healthy. Must be between 1 and 5.
+                - Priority of origin in given origin group for load balancing. Higher priorities will not be used for load balancing if any
+                - lower priority origin is healthy. Must be between 1 and 5.
             type: int
         profile_name:
             description:
                 - Name of the AFD Profile where the Origin will be added.
-            required: true
             type: str
         provisioning_state:
             description:
@@ -127,13 +131,12 @@ afdorigins:
         resource_group:
             description:
                 - Name of a resource group where the AFD Origin exists or will be created.
-            required: true
             type: str
         shared_private_link_resource:
             description:
                 - The properties of the private link resource for private origin.
             type: dict
-            suboptions:
+            contains:
                 group_id:
                     description:
                         - The group id from the provider of resource the shared private link resource is for.
@@ -154,12 +157,7 @@ afdorigins:
                     description:
                         - Status of the shared private link resource. Can be Pending, Approved, Rejected, Disconnected, or Timeout.
                     type: str
-                    choices:
-                        - Approved
-                        - Disconnected
-                        - Pending
-                        - Rejected
-                        - Timeout
+                    sample: Approved
         type:
             description:
                 - Resource type.
@@ -227,9 +225,10 @@ class AzureRMAFDOriginInfo(AzureRMModuleBase):
         for key in self.module_args:
             setattr(self, key, kwargs[key])
 
-        self.endpoint_client = self.get_mgmt_svc_client(CdnManagementClient,
-                                                   base_url=self._cloud_environment.endpoints.resource_manager,
-                                                   api_version='2023-05-01')
+        self.endpoint_client = self.get_mgmt_svc_client(
+            CdnManagementClient,
+            base_url=self._cloud_environment.endpoints.resource_manager,
+            api_version='2023-05-01')
 
         if self.name:
             self.results['afdorigins'] = self.get_item()
@@ -250,7 +249,7 @@ class AzureRMAFDOriginInfo(AzureRMModuleBase):
             item = self.endpoint_client.afd_origins.get(
                 resource_group_name=self.resource_group, profile_name=self.profile_name, origin_group_name=self.origin_group_name, origin_name=self.name)
         except Exception as exc:
-            self.log("Did not find resource.".format(str(exc)))
+            self.log("Did not find resource. {0}".format(str(exc)))
             pass
 
         if item:
@@ -321,6 +320,7 @@ class AzureRMAFDOriginInfo(AzureRMModuleBase):
 def main():
     """Main module execution code path"""
     AzureRMAFDOriginInfo()
+
 
 if __name__ == '__main__':
     main()

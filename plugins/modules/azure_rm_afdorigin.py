@@ -8,7 +8,7 @@ __metaclass__ = type
 DOCUMENTATION = '''
 ---
 module: azure_rm_afdorigin
-version_added: ""
+version_added: "2.4.0"
 short_description: Manage an Azure Front Door Origin to be used with Standard or Premium Frontdoor.
 description:
     - Create, update and delete an Azure Front Door (AFD) Origin to be used by a Front Door Service Profile created using azure_rm_cdnprofile.
@@ -30,14 +30,16 @@ options:
                 type: str
             enabled_state:
                 description:
-                    - Whether to enable health probes to be made against backends defined under backend pools. Health probes can only be disabled if there is a single enabled backend in single enabled backend pool.
+                    - Whether to enable health probes to be made against backends defined under backend pools.
+                    - Health probes can only be disabled if there is a single enabled backend in single enabled backend pool.
                 type: str
                 choices:
                     - Enabled
                     - Disabled
             host_name:
                 description:
-                    - The address of the origin. Domain names, IPv4 addresses, and IPv6 addresses are supported. This should be unique across all origins in an endpoint.
+                    - The address of the origin. Domain names, IPv4 addresses, and IPv6 addresses are supported.
+                    - This should be unique across all origins in an endpoint.
                 type: str
             http_port:
                 description:
@@ -51,11 +53,15 @@ options:
                 type: int
             origin_host_header:
                 description:
-                    - The host header value sent to the origin with each request. If you leave this blank, the request hostname determines this value. Azure Front Door origins, such as Web Apps, Blob Storage, and Cloud Services require this host header value to match the origin hostname by default. This overrides the host header defined at the AFD Endpoint.
+                    - The host header value sent to the origin with each request. If you leave this blank, the request hostname determines this value.
+                    - Azure Front Door origins, such as Web Apps, Blob Storage,
+                    - and Cloud Services require this host header value to match the origin hostname by default.
+                    - This overrides the host header defined at the AFD Endpoint.
                 type: str
             priority:
                 description:
-                    - Priority of origin in given origin group for load balancing. Higher priorities will not be used for load balancing if any lower priority origin is healthy. Must be between 1 and 5.
+                    - Priority of origin in given origin group for load balancing.
+                    - Higher priorities will not be used for load balancing if any lower priority origin is healthy. Must be between 1 and 5.
                 type: int
             shared_private_link_resource:
                 description:
@@ -82,6 +88,7 @@ options:
                         description:
                             - Status of the shared private link resource. Can be Pending, Approved, Rejected, Disconnected, or Timeout.
                         type: str
+                        default: Approved
                         choices:
                             - Approved
                             - Disconnected
@@ -132,12 +139,12 @@ EXAMPLES = '''
     resource_group: myResourceGroup
     state: present
     origin:
-        host_name: "10.0.0.1"
-        origin_host_header: "10.0.0.1"
-        http_port: 80
-        https_port: 443
-        priority: 1
-        weight: 1000
+      host_name: "10.0.0.1"
+      origin_host_header: "10.0.0.1"
+      http_port: 80
+      https_port: 443
+      priority: 1
+      weight: 1000
 
 - name: Delete an AFD Origin
   azure_rm_afdorigin:
@@ -146,7 +153,6 @@ EXAMPLES = '''
     profile_name: myProfile
     resource_group: myResourceGroup
     state: absent
-
 '''
 RETURN = '''
 id:
@@ -154,7 +160,7 @@ id:
         - ID of the AFD Origin.
     returned: always
     type: str
-    sample: "id: /subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourcegroups/myResourceGroup/providers/Microsoft.Cdn/profiles/myProfile/origingroups/myOriginGroup/origins/myOrigin"
+    sample: "id: /subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxx/resourcegroups/myRG/providers/Microsoft.Cdn/profiles/myProf/origingroups/myOG/origins/myO"
 host_name:
     description:
         - Host name of the AFD Origin.
@@ -174,16 +180,17 @@ except ImportError as ec:
     # This is handled in azure_rm_common
     pass
 
+
 def origin_to_dict(origin):
     return dict(
         azure_origin=origin.azure_origin,
         deployment_status=origin.deployment_status,
-        enabled_state = origin.enabled_state,
+        enabled_state=origin.enabled_state,
         # enforce_certificate_check = origin.enforce_certificate_check, # Not fully implemented yet
-        host_name = origin.host_name,
-        http_port = origin.http_port,
-        https_port = origin.https_port,
-        id = origin.id,
+        host_name=origin.host_name,
+        http_port=origin.http_port,
+        https_port=origin.https_port,
+        id=origin.id,
         name=origin.name,
         origin_group_name=re.sub('\\/.*', '', re.sub('.*origingroups\\/', '', origin.id)),
         origin_host_header=origin.origin_host_header,
@@ -207,11 +214,11 @@ class AzureRMOrigin(AzureRMModuleBase):
                 type='dict',
                 options=dict(
                     azure_origin=dict(type='str'),
-                    enabled_state=dict(type='str'),
+                    enabled_state=dict(type='str', choices=['Enabled', 'Disabled']),
                     # enforce_certification_name_check=dict(type='bool'),
                     host_name=dict(type='str'),
-                    http_port=dict(type='int',default=80),
-                    https_port=dict(type='int',default=443),
+                    http_port=dict(type='int', default=80),
+                    https_port=dict(type='int', default=443),
                     origin_host_header=dict(type='str'),
                     priority=dict(type='int'),
                     shared_private_link_resource=dict(
@@ -221,7 +228,7 @@ class AzureRMOrigin(AzureRMModuleBase):
                             private_link=dict(type='str'),
                             private_link_location=dict(type='str'),
                             request_message=dict(type='str'),
-                            status=dict(type='str',default='Approved',choices=["Pending", "Approved", "Rejected", "Disconnected", "Timeout"])
+                            status=dict(type='str', default='Approved', choices=["Pending", "Approved", "Rejected", "Disconnected", "Timeout"])
                         )
                     ),
                     weight=dict(type='int')
@@ -261,10 +268,11 @@ class AzureRMOrigin(AzureRMModuleBase):
 
         self.results = dict(changed=False)
 
-        super(AzureRMOrigin, self).__init__(derived_arg_spec=self.module_arg_spec,
-                                                supports_check_mode=True,
-                                                supports_tags=False,
-                                                required_if=required_if)
+        super(AzureRMOrigin, self).__init__(
+            derived_arg_spec=self.module_arg_spec,
+            supports_check_mode=True,
+            supports_tags=False,
+            required_if=required_if)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
@@ -309,20 +317,26 @@ class AzureRMOrigin(AzureRMModuleBase):
                     to_be_updated = True
                 if response['enabled_state'] != self.origin['enabled_state'] and self.origin['enabled_state']:
                     to_be_updated = True
-                # if response['enforce_certificate_name_check'] != self.origin['enforce_certificate_name_check'] and self.origin['enforce_certificate_name_check']:
-                #     to_be_updated = True
                 if response['shared_private_link_resource']:
-                    if response['shared_private_link_resource']['group_id'] != self.origin['shared_private_link_resource']['group_id'] and self.origin['shared_private_link_resource']['group_id']:
+                    if response['shared_private_link_resource']['group_id'] != \
+                            self.origin['shared_private_link_resource']['group_id'] and \
+                            self.origin['shared_private_link_resource']['group_id']:
                         to_be_updated = True
-                    if response['shared_private_link_resource']['private_link'] != self.origin['shared_private_link_resource']['private_link'] and self.origin['shared_private_link_resource']['private_link']:
+                    if response['shared_private_link_resource']['private_link'] != \
+                            self.origin['shared_private_link_resource']['private_link'] and \
+                            self.origin['shared_private_link_resource']['private_link']:
                         to_be_updated = True
-                    if response['shared_private_link_resource']['private_link_location'] != self.origin['shared_private_link_resource']['private_link_location'] and self.origin['shared_private_link_resource']['private_link_location']:
+                    if response['shared_private_link_resource']['private_link_location'] != \
+                            self.origin['shared_private_link_resource']['private_link_location'] and \
+                            self.origin['shared_private_link_resource']['private_link_location']:
                         to_be_updated = True
-                    if response['shared_private_link_resource']['request_message'] != self.origin['shared_private_link_resource']['request_message'] and self.origin['shared_private_link_resource']['request_message']:
+                    if response['shared_private_link_resource']['request_message'] != self.origin['shared_private_link_resource']['request_message'] and \
+                            self.origin['shared_private_link_resource']['request_message']:
                         to_be_updated = True
-                    if response['shared_private_link_resource']['status'] != self.origin['shared_private_link_resource']['status'] and self.origin['shared_private_link_resource']['status']:
+                    if response['shared_private_link_resource']['status'] != self.origin['shared_private_link_resource']['status'] and \
+                            self.origin['shared_private_link_resource']['status']:
                         to_be_updated = True
-                    
+
                 if to_be_updated:
                     self.log("Need to update the Origin")
 
@@ -380,7 +394,8 @@ class AzureRMOrigin(AzureRMModuleBase):
         )
 
         try:
-            poller = self.origin_client.afd_origins.begin_create(resource_group_name=self.resource_group,
+            poller = self.origin_client.afd_origins.begin_create(
+                resource_group_name=self.resource_group,
                 profile_name=self.profile_name,
                 origin_group_name=self.origin_group_name,
                 origin_name=self.name,
@@ -420,9 +435,10 @@ class AzureRMOrigin(AzureRMModuleBase):
             enabled_state=self.origin['enabled_state'],
             shared_private_link_resource=shared_private_link_resource
         )
-        
+
         try:
-            poller = self.origin_client.afd_origins.begin_update(resource_group_name=self.resource_group,
+            poller = self.origin_client.afd_origins.begin_update(
+                resource_group_name=self.resource_group,
                 profile_name=self.profile_name,
                 origin_group_name=self.origin_group_name,
                 origin_name=self.name,
@@ -441,7 +457,8 @@ class AzureRMOrigin(AzureRMModuleBase):
         '''
         self.log("Deleting the Origin {0}".format(self.name))
         try:
-            poller = self.origin_client.afd_origins.begin_delete(resource_group_name=self.resource_group,
+            poller = self.origin_client.afd_origins.begin_delete(
+                resource_group_name=self.resource_group,
                 profile_name=self.profile_name,
                 origin_group_name=self.origin_group_name,
                 origin_name=self.name)
@@ -461,7 +478,8 @@ class AzureRMOrigin(AzureRMModuleBase):
         self.log(
             "Checking if the Origin {0} is present".format(self.name))
         try:
-            response = self.origin_client.afd_origins.get(resource_group_name=self.resource_group,
+            response = self.origin_client.afd_origins.get(
+                resource_group_name=self.resource_group,
                 profile_name=self.profile_name,
                 origin_group_name=self.origin_group_name,
                 origin_name=self.name)
@@ -474,15 +492,17 @@ class AzureRMOrigin(AzureRMModuleBase):
 
     def get_origin_client(self):
         if not self.origin_client:
-            self.origin_client = self.get_mgmt_svc_client(CdnManagementClient,
-                                                       base_url=self._cloud_environment.endpoints.resource_manager,
-                                                       api_version='2023-05-01')
+            self.origin_client = self.get_mgmt_svc_client(
+                CdnManagementClient,
+                base_url=self._cloud_environment.endpoints.resource_manager,
+                api_version='2023-05-01')
         return self.origin_client
 
 
 def main():
     """Main execution"""
     AzureRMOrigin()
+
 
 if __name__ == '__main__':
     main()
