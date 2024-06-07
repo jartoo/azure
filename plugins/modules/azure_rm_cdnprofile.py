@@ -131,7 +131,11 @@ class AzureRMCdnprofile(AzureRMModuleBase):
             ),
             sku=dict(
                 type='str',
-                choices=['standard_verizon', 'premium_verizon', 'custom_verizon', 'standard_akamai', 'standard_chinacdn', 'standard_microsoft', 'standard_azurefrontdoor', 'premium_azurefrontdoor']
+                choices=[
+                    'standard_verizon', 'premium_verizon', 'custom_verizon', 'standard_akamai', 
+                    'standard_chinacdn', 'standard_microsoft', 
+                    'standard_azurefrontdoor', 'premium_azurefrontdoor'
+                ]
             )
         )
 
