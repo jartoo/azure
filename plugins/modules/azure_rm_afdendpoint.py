@@ -232,7 +232,7 @@ class AzureRMEndpoint(AzureRMModuleBase):
                         if not self.check_mode:
                             result = self.update_endpoint()
                             self.results['host_name'] = result['host_name']
-                            self.log("AFD Endpoint update done")    
+                            self.log("AFD Endpoint update done")
 
         elif self.state == 'absent':
             if not response:
