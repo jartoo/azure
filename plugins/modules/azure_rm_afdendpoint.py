@@ -345,6 +345,7 @@ class AzureRMEndpoint(AzureRMModuleBase):
 def main():
     """Main execution"""
     AzureRMEndpoint()
-    
+
+
 if __name__ == '__main__':
     main()
