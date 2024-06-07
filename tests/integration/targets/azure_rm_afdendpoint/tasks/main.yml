@@ -106,7 +106,7 @@
     profile_name: "{{ profile }}"
     resource_group: "{{ resource_group }}"
     enabled_state: "Disabled"
-    append_tags: False
+    append_tags: false
     tags:
       test2: "a tag value"
     state: "present"
