@@ -68,7 +68,7 @@ afdendpoints:
     description: List of AFD Endpoints.
     returned: always
     type: complex
-    contains:        
+    contains:
         auto_generated_domain_name_label_scope:
             description:
                 - Indicates the endpoint name reuse scope.
