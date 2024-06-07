@@ -288,7 +288,6 @@ class AzureRMEndpoint(AzureRMModuleBase):
             tags=self.tags,
             enabled_state=self.enabled_state
         )
-        
         try:
             poller = self.endpoint_client.afd_endpoints.begin_update(
                 endpoint_name=self.name,
