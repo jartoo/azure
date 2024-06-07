@@ -17,7 +17,9 @@ version_added: ""
 short_description: Get Azure Front Door Endpoint facts to be used with Standard or Premium Frontdoor Service
 
 description:
-    - Get facts for a specific Azure Front Door (AFD) Endpoint or all AFD Endpoints.  This differs from the Front Door classic service and only is intended to be used by the Standard or Premium service offering.
+    - Get facts for a specific Azure Front Door (AFD) Endpoint or all AFD Endpoints.
+    This differs from the Front Door classic service and only is intended to be used by the
+    Standard or Premium service offering.
 
 options:
     resource_group:
@@ -191,8 +193,8 @@ class AzureRMAFDEndpointInfo(AzureRMModuleBase):
             setattr(self, key, kwargs[key])
 
         self.endpoint_client = self.get_mgmt_svc_client(CdnManagementClient,
-                                                   base_url=self._cloud_environment.endpoints.resource_manager,
-                                                   api_version='2023-05-01')
+            base_url=self._cloud_environment.endpoints.resource_manager,
+            api_version='2023-05-01')
 
         if self.name:
             self.results['afdendpoints'] = self.get_item()

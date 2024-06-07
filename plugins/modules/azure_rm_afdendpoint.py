@@ -18,12 +18,15 @@ version_added: ""
 short_description: Manage an Azure Front Door Endpoint to be used with Standard or Premium Frontdoor
 
 description:
-    - Create, update and delete an Azure Front Door (AFD) Endpoint to be used by a Front Door Service Profile created using azure_rm_cdnprofile.  This differs from the Front Door classic service and only is intended to be used by the Standard or Premium service offering.
+    - Create, update and delete an Azure Front Door (AFD) Endpoint to be used by a Front Door Service Profile
+    created using azure_rm_cdnprofile.  This differs from the Front Door classic service and only is intended to be used by
+    the Standard or Premium service offering.
 
 options:
     auto_generated_domain_name_label_scope:
         description:
-            - Indicates the endpoint name reuse scope. Known values are: "TenantReuse", "SubscriptionReuse", "ResourceGroupReuse", and "NoReuse". Cannot be used to update an existing Endpoint at this time.
+            - Indicates the endpoint name reuse scope. Known values are: "TenantReuse", "SubscriptionReuse", 
+            "ResourceGroupReuse", and "NoReuse". Cannot be used to update an existing Endpoint at this time.
         default: TenantReuse
         type: str
     enabled_state:
@@ -90,7 +93,8 @@ id:
         - ID of the AFD Endpoint.
     returned: always
     type: str
-    sample: "id: /subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourcegroups/myResourceGroup/providers/Microsoft.Cdn/profiles/myProfile/endpoints/myEndpoint"
+    sample: "id: /subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourcegroups/
+    myResourceGroup/providers/Microsoft.Cdn/profiles/myProfile/endpoints/myEndpoint"
 host_name:
     description:
         - Host name of the AFD Endpoint.
@@ -111,10 +115,10 @@ except ImportError as ec:
 
 def endpoint_to_dict(endpoint):
     return dict(
-        deployment_status = endpoint.deployment_status,
-        enabled_state = endpoint.enabled_state,
-        host_name = endpoint.host_name,
-        id = endpoint.id,
+        deployment_status=endpoint.deployment_status,
+        enabled_state=endpoint.enabled_state,
+        host_name=endpoint.host_name,
+        id=endpoint.id,
         location=endpoint.location,
         name=endpoint.name,
         provisioning_state=endpoint.provisioning_state,
@@ -337,8 +341,8 @@ class AzureRMEndpoint(AzureRMModuleBase):
     def get_endpoint_client(self):
         if not self.endpoint_client:
             self.endpoint_client = self.get_mgmt_svc_client(CdnManagementClient,
-                                                       base_url=self._cloud_environment.endpoints.resource_manager,
-                                                       api_version='2023-05-01')
+                base_url=self._cloud_environment.endpoints.resource_manager,
+                api_version='2023-05-01')
         return self.endpoint_client
 
 
