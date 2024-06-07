@@ -12,28 +12,26 @@ __metaclass__ = type
 DOCUMENTATION = '''
 ---
 module: azure_rm_afdorigingroup_info
-
-version_added: ""
-
+version_added: "2.4.0"
 short_description: Get Azure Front Door OriginGroup facts to be used with Standard or Premium Frontdoor Service
-
 description:
-    - Get facts for a specific Azure Front Door (AFD) OriginGroup or all AFD OriginGroups.  This differs from the Front Door classic service and only is intended to be used by the Standard or Premium service offering.
+    - Get facts for a specific Azure Front Door (AFD) OriginGroup or all AFD OriginGroups.
+    - This differs from the Front Door classic service and only is intended to be used by the Standard or Premium service offering.
 
 options:
-    resource_group:
+    name:
         description:
-            - Name of the resource group where this AFD Profile belongs.
-        required: true
+            - Limit results to a specific AFD OriginGroup.
         type: str
     profile_name:
         description:
             - Name of the AFD profile.
         required: true
         type: str
-    name:
+    resource_group:
         description:
-            - Limit results to a specific AFD OriginGroup.
+            - Name of the resource group where this AFD Profile belongs.
+        required: true
         type: str
 
 extends_documentation_fragment:
@@ -61,17 +59,17 @@ afdorigingroups:
     description: List of AFD OriginGroups.
     returned: always
     type: complex
-    contains:        
+    contains:
         deployment_status:
             description:
                 - Current state of the resource.
             type: str
             sample: NotStarted
-        health_probe_settings
+        health_probe_settings:
             description:
                 - Health probe settings to the origin that is used to determine the health of the origin.
             type: dict
-            suboptions:
+            contains:
                 probe_interval_in_seconds:
                     description:
                         - The number of seconds between health probes.
@@ -100,12 +98,12 @@ afdorigingroups:
             description:
                 - ID of the AFD OriginGroup.
             type: str
-            sample: "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourcegroups/myCDN/providers/Microsoft.Cdn/profiles/myProfile/origingroups/myOriginGroup1"
+            sample: "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourcegroups/myCDN/providers/Microsoft.Cdn/profiles/myProfile/origingroups/myOG1"
         load_balancing_settings:
             description:
                 - Load balancing settings for a backend pool.
             type: dict
-            suboptions:
+            contains:
                 additional_latency_in_milliseconds:
                     description:
                         - The additional latency in milliseconds for probes to fall into the lowest latency bucket.
@@ -121,12 +119,10 @@ afdorigingroups:
         name:
             description:
                 - Name of the AFD OriginGroup.
-            required: true
             type: str
         profile_name:
             description:
                 - Name of the AFD Profile where the OriginGroup will be added.
-            required: true
             type: str
         provisioning_state:
             description:
@@ -136,7 +132,6 @@ afdorigingroups:
         resource_group:
             description:
                 - Name of a resource group where the AFD OriginGroup exists or will be created.
-            required: true
             type: str
         session_affinity_state:
             description:
@@ -205,9 +200,10 @@ class AzureRMAFDOriginGroupInfo(AzureRMModuleBase):
         for key in self.module_args:
             setattr(self, key, kwargs[key])
 
-        self.endpoint_client = self.get_mgmt_svc_client(CdnManagementClient,
-                                                   base_url=self._cloud_environment.endpoints.resource_manager,
-                                                   api_version='2023-05-01')
+        self.endpoint_client = self.get_mgmt_svc_client(
+            CdnManagementClient,
+            base_url=self._cloud_environment.endpoints.resource_manager,
+            api_version='2023-05-01')
 
         if self.name:
             self.results['afdorigingroups'] = self.get_item()
@@ -283,7 +279,6 @@ class AzureRMAFDOriginGroupInfo(AzureRMModuleBase):
 
 def main():
     """Main module execution code path"""
-    
     AzureRMAFDOriginGroupInfo()
 
 
