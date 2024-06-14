@@ -165,17 +165,17 @@ EXAMPLES = '''
     resource_group_name: myResourceGroup
     state: present
     route:
-        enabled_state: Disabled
-        forwarding_protocol: HttpsOnly
-        https_redirect: Enabled
-        patterns_to_match:
-            - "/*"
-        rule_sets:
-            - Security
-        supported_protocols:
-            - Https
-            - Http
-        link_to_default_domain: Enabled
+      enabled_state: Disabled
+      forwarding_protocol: HttpsOnly
+      https_redirect: Enabled
+      patterns_to_match:
+        - "/*"
+      rule_sets:
+        - Security
+      supported_protocols:
+        - Https
+        - Http
+      link_to_default_domain: Enabled
 
 - name: Delete an AFD Origin
   azure_rm_afdroute:
