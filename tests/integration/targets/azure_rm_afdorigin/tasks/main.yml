@@ -37,13 +37,12 @@
     profile_name: "{{ profile }}"
     resource_group: "{{ resource_group }}"
     state: "present"
-    origin:
-      host_name: "10.0.0.1"
-      origin_host_header: "10.0.0.1"
-      http_port: 80
-      https_port: 443
-      priority: 1
-      weight: 123
+    host_name: "10.0.0.1"
+    origin_host_header: "10.0.0.1"
+    http_port: 80
+    https_port: 443
+    priority: 1
+    weight: 123
   register: output
 
 - name: Assert the resource was created
@@ -59,13 +58,12 @@
     profile_name: "{{ profile }}"
     resource_group: "{{ resource_group }}"
     state: "present"
-    origin:
-      host_name: "10.0.0.1"
-      origin_host_header: "10.0.0.1"
-      http_port: 80
-      https_port: 443
-      priority: 1
-      weight: 123
+    host_name: "10.0.0.1"
+    origin_host_header: "10.0.0.1"
+    http_port: 80
+    https_port: 443
+    priority: 1
+    weight: 123
   register: output
 
 - name: Assert the resource was not changed
@@ -102,13 +100,12 @@
     profile_name: "{{ profile }}"
     resource_group: "{{ resource_group }}"
     state: "present"
-    origin:
-      host_name: "10.0.1.2"
-      origin_host_header: "10.0.1.2"
-      http_port: 80
-      https_port: 443
-      priority: 2
-      weight: 234
+    host_name: "10.0.1.2"
+    origin_host_header: "10.0.1.2"
+    http_port: 80
+    https_port: 443
+    priority: 2
+    weight: 234
   register: output
 
 - name: Assert the resource was created
@@ -137,12 +134,11 @@
     profile_name: "{{ profile }}"
     resource_group: "{{ resource_group }}"
     state: "present"
-    origin:
-      host_name: "10.0.0.2"
-      origin_host_header: "10.0.0.2"
-      http_port: 8080
-      priority: 1
-      weight: 111
+    host_name: "10.0.0.2"
+    origin_host_header: "10.0.0.2"
+    http_port: 8080
+    priority: 1
+    weight: 111
   register: output
 
 - name: Assert the resource was changed
@@ -157,12 +153,11 @@
     profile_name: "{{ profile }}"
     resource_group: "{{ resource_group }}"
     state: "present"
-    origin:
-      host_name: "10.0.0.2"
-      origin_host_header: "10.0.0.2"
-      http_port: 8080
-      priority: 1
-      weight: 111
+    host_name: "10.0.0.2"
+    origin_host_header: "10.0.0.2"
+    http_port: 8080
+    priority: 1
+    weight: 111
   register: output
 
 - name: Assert the resource was not changed
