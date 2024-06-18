@@ -155,4 +155,3 @@
     resource_group: "{{ resource_group }}"
     sku: "standard_azurefrontdoor"
     state: "absent"
-
