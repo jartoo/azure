@@ -47,13 +47,12 @@
     profile_name: "{{ profile }}"
     resource_group: "{{ resource_group }}"
     state: "present"
-    origin:
-      host_name: "10.0.0.1"
-      origin_host_header: "10.0.0.1"
-      http_port: 80
-      https_port: 443
-      priority: 1
-      weight: 123
+    host_name: "10.0.0.1"
+    origin_host_header: "10.0.0.1"
+    http_port: 80
+    https_port: 443
+    priority: 1
+    weight: 123
   register: output
 
 - name: Create Ruleset
