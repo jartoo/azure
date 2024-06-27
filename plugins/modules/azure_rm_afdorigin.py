@@ -168,7 +168,7 @@ from ansible_collections.azure.azcollection.plugins.module_utils.azure_rm_common
 
 
 try:
-    from azure.mgmt.cdn.models import AFDOrigin, AFDOriginUpdateParameters, SharedPrivateLinkResourceProperties
+    from azure.mgmt.cdn.models import AFDOrigin, AFDOriginUpdateParameters, SharedPrivateLinkResourceProperties, ResourceReference
     from azure.mgmt.cdn import CdnManagementClient
 except ImportError as ec:
     # This is handled in azure_rm_common
@@ -321,7 +321,9 @@ class AzureRMOrigin(AzureRMModuleBase):
                     to_be_updated = True
                 if response['enabled_state'] != self.enabled_state and self.enabled_state:
                     to_be_updated = True
-                if response['shared_private_link_resource']:
+                if response['shared_private_link_resource'] != self.shared_private_link_resource and self.shared_private_link_resource:
+                    to_be_updated = True
+                elif response['shared_private_link_resource']:
                     if response['shared_private_link_resource']['group_id'] != \
                             self.shared_private_link_resource.get('group_id') and \
                             self.shared_private_link_resource.get('group_id'):
@@ -379,7 +381,7 @@ class AzureRMOrigin(AzureRMModuleBase):
         if self.shared_private_link_resource:
             shared_private_link_resource = SharedPrivateLinkResourceProperties(
                 group_id=self.shared_private_link_resource.get('group_id'),
-                private_link=self.shared_private_link_resource.get('private_link'),
+                private_link=ResourceReference(id=self.shared_private_link_resource.get('private_link')),
                 private_link_location=self.shared_private_link_resource.get('private_link_location'),
                 request_message=self.shared_private_link_resource.get('request_message'),
                 status=self.shared_private_link_resource.get('status')
@@ -422,7 +424,7 @@ class AzureRMOrigin(AzureRMModuleBase):
         if self.shared_private_link_resource:
             shared_private_link_resource = SharedPrivateLinkResourceProperties(
                 group_id=self.shared_private_link_resource.get('group_id'),
-                private_link=self.shared_private_link_resource.get('private_link'),
+                private_link=ResourceReference(id=self.shared_private_link_resource.get('private_link')),
                 private_link_location=self.shared_private_link_resource.get('private_link_location'),
                 request_message=self.shared_private_link_resource.get('request_message'),
                 status=self.shared_private_link_resource.get('status')
