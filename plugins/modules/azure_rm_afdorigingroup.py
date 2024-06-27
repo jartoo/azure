@@ -320,7 +320,8 @@ class AzureRMOriginGroup(AzureRMModuleBase):
 
         parameters = AFDOriginGroup(
             load_balancing_settings=loadbalancingsettings,
-            health_probe_settings=healthprobesettings
+            health_probe_settings=healthprobesettings,
+            session_affinity_state=self.session_affinity_state
         )
 
         try:
