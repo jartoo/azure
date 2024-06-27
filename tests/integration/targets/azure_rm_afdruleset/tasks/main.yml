@@ -123,4 +123,3 @@
     name: "{{ profile }}"
     resource_group: "{{ resource_group }}"
     state: "absent"
-
