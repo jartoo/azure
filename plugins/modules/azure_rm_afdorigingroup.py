@@ -118,7 +118,6 @@ EXAMPLES = '''
     profile_name: myProfile
     resource_group: myResourceGroup
     state: absent
-
 '''
 RETURN = '''
 id:
