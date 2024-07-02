@@ -1,5 +1,5 @@
 ---
-requires_ansible: '>=2.14.0'
+requires_ansible: '>=2.15.0'
 action_groups:
   all:
     - azure.azcollection.azure_rm_accesstoken_info
@@ -16,6 +16,8 @@ action_groups:
     - azure.azcollection.azure_rm_aduser_info
     - azure.azcollection.azure_rm_afdorigingroup
     - azure.azcollection.azure_rm_afdorigingroup_info
+    - azure.azcollection.azure_rm_afdendpoint
+    - azure.azcollection.azure_rm_afdendpoint_info
     - azure.azcollection.azure_rm_aks
     - azure.azcollection.azure_rm_aks_info
     - azure.azcollection.azure_rm_aksagentpool
@@ -299,3 +301,9 @@ action_groups:
     - azure.azcollection.azure_rm_webappslot
     - azure.azcollection.azure_rm_webappvnetconnection
     - azure.azcollection.azure_rm_webappvnetconnection_info
+    - azure.azcollection.azure_rm_networkwatcher
+    - azure.azcollection.azure_rm_networkwatcher_info
+    - azure.azcollection.azure_rm_networkflowlog
+    - azure.azcollection.azure_rm_networkflowlog_info
+    - azure.azcollection.azure_rm_capacityreservationgroup
+    - azure.azcollection.azure_rm_capacityreservationgroup_info

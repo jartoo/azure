@@ -36,6 +36,7 @@ parameters:
       - "azure_rm_adgroup"
       - "azure_rm_aduser"
       - "azure_rm_afdorigingroup"
+      - "azure_rm_afdendpoint"
       - "azure_rm_aks"
       - "azure_rm_aksagentpool"
       - "azure_rm_apimanagement"
@@ -49,6 +50,7 @@ parameters:
       - "azure_rm_apimanagementservice"
       - "azure_rm_batchaccount"
       - "azure_rm_backuppolicy"
+      - "azure_rm_capacityreservationgroup"
       - "azure_rm_cdnprofile"
       - "azure_rm_containerinstance"
       - "azure_rm_containerregistry"
@@ -145,6 +147,7 @@ parameters:
       - "azure_rm_sqlmidbshorttermretentionpolicy"
       - "azure_rm_vmssnetworkinterface_info"
       - "azure_rm_sshpublickey"
+      - "azure_rm_networkwatcher"
       - "inventory_azure"
       - "setup_azure"
 
